@@ -11,7 +11,7 @@ function getCurrentMouth(){
 function getCurrentYear(){
     console.log(`current year is ${moment.year()}`)
 }
-getCurrentYear()
-getCurrentMouth()
+// getCurrentYear()
+// getCurrentMouth()
 getCurrentDay()
 console.log(getDate())
