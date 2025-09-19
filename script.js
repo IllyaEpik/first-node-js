@@ -1,22 +1,10 @@
 let moment = require("moment")()
-function getDate(){
-    return moment.format("y/D/M H:m:s")
-}
-function getCurrentDay(isString = true){
-    /* 
-    21313
-    */
-    let day = isString ? moment.format("dddd") : moment.format("d")
-    console.log(`current day is ${ day }`)
-    
-}
-function getCurrentMouth(){
-    console.log(`current mouth is ${moment.format("MMMM")}`)
-}
-function getCurrentYear(){
-    console.log(`current year is ${moment.year()}`)
-}
-// getCurrentYear()
-// getCurrentMouth()
-getCurrentDay()
-console.log(getDate())
+const express = require("express")()
+const HOST = "127.0.0.1"
+const PORT = 8888
+express.get("/timestamp", (req,res) => {
+    res.status(200).send({date: moment.format("y/D/M H:m:s")})
+})
+express.listen(PORT,HOST, () =>{ 
+    console.log(`http://${HOST}:${PORT}`)
+})
