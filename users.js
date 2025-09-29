@@ -31,9 +31,7 @@ const getUserById = (req,res) => {
     const object = allUsersJson.find(object => object.id == id)
     let fields = req.query.fields
     const validObject = {}
-    const check = (field) => {
-        return fields.includes(field) ? validObject[field] = object[field] : false
-    }
+
     if (!object){
         res.status(400).send(`doesn't exists user with id ${id}`)
         return;
@@ -42,11 +40,14 @@ const getUserById = (req,res) => {
         res.status(200).json(object)
         return;
     }
-    fields = fields.split(",")
 
+    fields = fields.split(",")
+    const check = (field) => {
+        return fields.includes(field) ? validObject[field] = object[field] : false
+    }
     if (!check("name") && !check("email") && !check('password')){
         res.status(400).send(`fields are undefined, write correct names of fields, exemple: ?fields=name,email,password`)
-        return
+        return;
     }
     res.status(200).json(validObject)
 }
