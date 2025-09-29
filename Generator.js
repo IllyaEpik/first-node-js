@@ -11,6 +11,7 @@ let imgList = [
 ]
 function createPost(countPosts=10){
     array = []
+
     for (let count = 0; count<countPosts; count++){
         let object = {
             id: array.length+1,
@@ -22,9 +23,28 @@ function createPost(countPosts=10){
         array.push(object)
     }
     fs.writeFileSync(
-        path.join(__dirname+"/posts.json"),
+        path.join(__dirname+'/jsons/posts.json'),
         JSON.stringify(array,null,4)
     )
     return array
 }
-module.exports = createPost
+function createUsers(countUsers){
+    array = []
+    for (let count = 0; count<countUsers; count++){
+        let object = {
+            id: array.length+1,
+            name: randomWords.generate(crypto.randomInt(2)+1).join(" "),
+            password: randomWords.generate(1).join(" "),
+            email: `${randomWords.generate(1)}@gmail.com`
+        }
+        array.push(object)
+    }
+    console.log(path.join(__dirname+'/jsons/users.json'))
+    fs.writeFileSync(
+        path.join(__dirname+'/jsons/users.json'),
+        JSON.stringify(array,null,4)
+    )
+    return array
+}
+// createUsers(321)
+module.exports = [createPost, createUsers]
