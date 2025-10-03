@@ -1,8 +1,8 @@
 let moment = require("moment")()
 let express = require("express")
 
-let [getPostById,getAllPosts,createPosts] = require('./posts.js')
-let [createUsersMany,getUserById] = require('./users.js')
+let [getPostById,getAllPosts,createPosts,createUserPost] = require('./posts.js')
+let [createUsersMany,getUserById,getUserByName] = require('./users.js')
 
 let app = express()
 app.use(express.json())
@@ -16,9 +16,11 @@ app.get("/timestamp", (req,res) => {
 app.get("/posts/:id", getPostById)
 app.get("/posts", getAllPosts)
 app.post("/users", createUsersMany)
-app.post("/users/:id", getUserById)
+app.get("/users/name/:name", getUserByName)
 
-app.post("/posts", createPosts)
+app.get("/users/:id", getUserById)
+app.post("/posts/update", createPosts)
+app.post("/posts/create", createUserPost)
 app.listen(PORT,HOST, () =>{ 
     console.log(`http://${HOST}:${PORT}`)
 })
