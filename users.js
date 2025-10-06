@@ -83,6 +83,5 @@ const getUserByName = async (req,res) => {
     } catch (error) {
         await res.status(500).send(error)
     }
-    
 }
 module.exports = [createUsersMany,getUserById,getUserByName]

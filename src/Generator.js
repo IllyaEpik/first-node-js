@@ -23,7 +23,7 @@ function createPost(countPosts=10){
         array.push(object)
     }
     fs.writeFileSync(
-        path.join(__dirname+'/jsons/posts.json'),
+        path.join(__dirname+'/Posts/posts.json'),
         JSON.stringify(array,null,4)
     )
     return array
@@ -41,10 +41,13 @@ function createUsers(countUsers){
     }
     console.log(path.join(__dirname+'/jsons/users.json'))
     fs.writeFileSync(
-        path.join(__dirname+'/jsons/users.json'),
+        path.join(__dirname+'/Posts/users.json'),
         JSON.stringify(array,null,4)
     )
     return array
 }
 // createUsers(321)
-module.exports = [createPost, createUsers]
+module.exports = {
+    "createPost":createPost, 
+    "createUsers":createUsers
+}
