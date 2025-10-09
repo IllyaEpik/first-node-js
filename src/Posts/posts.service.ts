@@ -1,14 +1,19 @@
-let path = require("path")
-let fs = require("fs")
-let fsPromises = require("fs/promises")
+import path from "path";
+import fs from "fs";
+import fsPromises from "fs/promises";
+import type{ Posts } from "./types.ts";
+import { fileURLToPath } from "url";
 
+// const pathToJson:String = path.join(__dirname+"/posts.json")
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pathToJson = path.join(__dirname+"/posts.json")
-const {createPost} = require("../Generator.js")
+// const {createPost} = require("../Generator.js")
 console.log(pathToJson)
-let allPostsJson = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
+
+let allPostsJson:Posts[] = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
 
 const postsMethods = {
-    getPostById: (id) => {
+    getPostById: (id:Number) => {
         const object = allPostsJson.find(object => object.id == id)
         // if post with id is undefined
         if (!object){
@@ -23,7 +28,7 @@ const postsMethods = {
             }
     },
 
-    getAllPosts: (skip,take,filter) => {
+    getAllPosts: (skip:String,take:String,filter:Boolean) => {
             
             let localPosts = [ ...allPostsJson ]
             // if filter isn't undefined and it is true
@@ -32,34 +37,35 @@ const postsMethods = {
             }
             // if skip isn't undefined 
             if (skip){
-                skip = Number(skip)
+                let skipNumber = Number(skip)
                 // if take isn't a number
-                if (isNaN(skip)){
+                if (isNaN(skipNumber)){
                     return {
                         status:400,
                         response: "skip must be a number"
                     }
                 }
-                localPosts.splice(0,skip)
+                localPosts.splice(0,skipNumber)
             }
             // if take isn't undefined 
             if (take){
-                take = Number(take)
+                let takeNumber = Number(take)
+                // take = Number(take)
                 // if take isn't a number
-                if (isNaN(take)){
+                if (isNaN(takeNumber)){
                     return {
                         status:400,
                         response: "take must be a number"
                     }
                 }
-                localPosts.splice(take,localPosts.length-take)
+                localPosts.splice(takeNumber,localPosts.length-takeNumber)
             }
             return {
                 status:200,
                 response: localPosts
             }
     },
-    createUserPost: async (body) => {
+    createUserPost: async (body:Posts) => {
         try {
             // if server can't get body or user didn't indicate body in request
             if (!body){
@@ -113,53 +119,53 @@ const postsMethods = {
             }
         }
     },
-    createPosts: async (body) => {
-        try {
-            // if server can't get body or user didn't indicate body in request
-            if (!body){
-                return {
-                    status: 422,
-                    response: "request doesn't have body or server can't get body, try to set type of body 'raw' or 'x-www-form-urlencoded'"
-                };
-            }
-            // if user didn't indicate count in body
-            if (!body.count){
-                return {
-                    status: 422,
-                    response: "body must have count of posts"
-                };
-            }
-            let count = Number(body.count)
-            // if count isn't a number
-            if (isNaN(count)){
-                return {
-                    status: 422,
-                    response: "count must be number"
-                };
-            }
-            // if count is too big
-            if (count>1000){
+    // createPosts: async (body) => {
+    //     try {
+    //         // if server can't get body or user didn't indicate body in request
+    //         if (!body){
+    //             return {
+    //                 status: 422,
+    //                 response: "request doesn't have body or server can't get body, try to set type of body 'raw' or 'x-www-form-urlencoded'"
+    //             };
+    //         }
+    //         // if user didn't indicate count in body
+    //         if (!body.count){
+    //             return {
+    //                 status: 422,
+    //                 response: "body must have count of posts"
+    //             };
+    //         }
+    //         let count = Number(body.count)
+    //         // if count isn't a number
+    //         if (isNaN(count)){
+    //             return {
+    //                 status: 422,
+    //                 response: "count must be number"
+    //             };
+    //         }
+    //         // if count is too big
+    //         if (count>1000){
 
-                return {
-                    status: 422,
-                    response: "count too big, count must be smaller than 1000"
-                };
-            }
+    //             return {
+    //                 status: 422,
+    //                 response: "count too big, count must be smaller than 1000"
+    //             };
+    //         }
             
-            await createPost(body["count"])
-            allPostsJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
-            return {
-                    status: 200,
-                    response: allPostsJson
-                };
+    //         await createPost(body["count"])
+    //         allPostsJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
+    //         return {
+    //                 status: 200,
+    //                 response: allPostsJson
+    //             };
             
-        } catch (error) {
-           return {
-                    status: 500,
-                    response: error
-                }
-        }
-    }
+    //     } catch (error) {
+    //        return {
+    //                 status: 500,
+    //                 response: error
+    //             }
+    //     }
+    // }
 }
 
-module.exports = postsMethods
+export default postsMethods
