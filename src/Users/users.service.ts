@@ -3,7 +3,7 @@
 
 import path from "path";
 import fs from "fs";
-import type {Users} from "./types.ts";
+import type {IAnswer, IUsers} from "./users.types.ts";
 import { fileURLToPath } from "url";
 // import fsPromises from "fs/promises";
 // Body
@@ -16,19 +16,14 @@ console.log(pathToJson)
 // const {createUsers} = require("../Generator.js")
 
 
-let allUsersJson:Users[] = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
+let allUsersJson:IUsers[] = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
 
 const usersMethods = {
-    getUserByName: async (name:String) => {
+    getUserByName: async (name:String): Promise<IAnswer>  => {
         try {
             
-            // if request doesn't have name
-            if (!name){
-                return {
-                    status: 422,
-                    response:"server can't get name"
-                }
-            }
+            
+            
             const object = allUsersJson.filter(object => object.name == name)
             // if user with name from request doesn't exists
             if (!object){
@@ -45,16 +40,16 @@ const usersMethods = {
         } catch (error) {
             return {
                     status:500,
-                    response:error
+                    response:String(error)
                 }
         }
     },
-    getUserById: async (id:Number,fields?:String | undefined) => {
+    getUserById:  (id:Number,fields?:String | undefined): IAnswer => {
         
 
         try {
             
-            let validObject = await allUsersJson.find(object => object.id == id)
+            let validObject = allUsersJson.find(object => object.id == id)
             // let validObject = object
             // if user with id is undefined
             if (validObject==undefined){
@@ -68,7 +63,7 @@ const usersMethods = {
             if (fields){
                 // console.log(fields)
                 let fieldsArray:String[] = fields.split(",")
-                let func = (field:keyof Users) => {
+                let func = (field:keyof IUsers) => {
                     let include:boolean = fieldsArray.includes(field)
                     console.log(include,field)
                     if (!include){
@@ -76,12 +71,6 @@ const usersMethods = {
                     }
                     return include
                 }
-                // let validObject:Users
-                // const check = async (field:String) => {
-                //     return await fields2.includes(field) ? validObject[field] = object[field] : false
-                // }
-                // // if request don't have these fields
-                // if (await !check("name") && await !check("email") && await !check('password')){
                 let name = func("name")
                 let email = func("email")
                 let password = func("password")
@@ -96,11 +85,11 @@ const usersMethods = {
                         status:200,
                         response:validObject
                     };            
-        } catch (error) {
+        } catch (error : unknown) {
             return {
-                        status:500,
-                        response:error
-                    };
+                status:500,
+                response:String(error)
+            };
         }
     },
 //     createUsersMany: async (body:Body) => {

@@ -1,19 +1,18 @@
 import path from "path";
 import fs from "fs";
 import fsPromises from "fs/promises";
-import type{ Posts } from "./types.ts";
+import type{ IAnswer, IPostCreate, IPosts, IPostUpdate } from "./posts.types.ts";
+import create from "../Generator.ts";
 import { fileURLToPath } from "url";
 
-// const pathToJson:String = path.join(__dirname+"/posts.json")
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pathToJson = path.join(__dirname+"/posts.json")
-// const {createPost} = require("../Generator.js")
-console.log(pathToJson)
 
-let allPostsJson:Posts[] = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
+
+let allPostsJson:IPosts[] = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
 
 const postsMethods = {
-    getPostById: (id:Number) => {
+    getPostById: (id:Number): IAnswer => {
         const object = allPostsJson.find(object => object.id == id)
         // if post with id is undefined
         if (!object){
@@ -28,7 +27,7 @@ const postsMethods = {
             }
     },
 
-    getAllPosts: (skip:String,take:String,filter:Boolean) => {
+    getAllPosts: (skip:String,take:String,filter:Boolean): IAnswer => {
             
             let localPosts = [ ...allPostsJson ]
             // if filter isn't undefined and it is true
@@ -65,24 +64,19 @@ const postsMethods = {
                 response: localPosts
             }
     },
-    createUserPost: async (body:Posts) => {
+    createUserPost: async (body:IPostCreate): Promise<IAnswer> => {
         try {
-            // if server can't get body or user didn't indicate body in request
-            if (!body){
-                return {
-                        status: 422,
-                        response: "request must have body"
-                }
-            }
+            
             let listOfRequests = [body]
             // if user want to create many posts
             if (Array.isArray(body)){
                 listOfRequests = body
             }
+            const newListOfRequests:IPosts[] = [];
             let newId = allPostsJson.length+1
-            for (let item of listOfRequests){
+            for (const item of listOfRequests){
                 // if user didn't indicate name for post
-                if (!item.name){
+                if (!item.name && item.name.trim() === ""){
                     return {
                         status: 422,
                         response: "request must have name"
@@ -102,70 +96,80 @@ const postsMethods = {
                         response: "request must have img"
                     }
                 }
-                item.id = newId;
+                const newItem:IPosts = {
+                    id:newId,
+                    name:item.name,
+                    description:item.description,
+                    img:item.img,
+                    likes:0
+                }
+                newListOfRequests.push(newItem)
                 newId++
             }
             // joining arrays
-            allPostsJson = await allPostsJson.concat(listOfRequests)
+            allPostsJson = await allPostsJson.concat(newListOfRequests)
             await fsPromises.writeFile(pathToJson, JSON.stringify(allPostsJson,null,4))
             return {
                 status: 200,
                 response: allPostsJson
             }
-        } catch (error) {
+        } catch (error:unknown) {
             return {
                 status: 500,
-                response: error
+                response: String(error)
             }
         }
     },
-    // createPosts: async (body) => {
-    //     try {
-    //         // if server can't get body or user didn't indicate body in request
-    //         if (!body){
-    //             return {
-    //                 status: 422,
-    //                 response: "request doesn't have body or server can't get body, try to set type of body 'raw' or 'x-www-form-urlencoded'"
-    //             };
-    //         }
-    //         // if user didn't indicate count in body
-    //         if (!body.count){
-    //             return {
-    //                 status: 422,
-    //                 response: "body must have count of posts"
-    //             };
-    //         }
-    //         let count = Number(body.count)
-    //         // if count isn't a number
-    //         if (isNaN(count)){
-    //             return {
-    //                 status: 422,
-    //                 response: "count must be number"
-    //             };
-    //         }
-    //         // if count is too big
-    //         if (count>1000){
-
-    //             return {
-    //                 status: 422,
-    //                 response: "count too big, count must be smaller than 1000"
-    //             };
-    //         }
-            
-    //         await createPost(body["count"])
-    //         allPostsJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
-    //         return {
-    //                 status: 200,
-    //                 response: allPostsJson
-    //             };
-            
-    //     } catch (error) {
-    //        return {
-    //                 status: 500,
-    //                 response: error
-    //             }
-    //     }
-    // }
+    updateUserPost: async (id:number,body:IPostUpdate):Promise<IAnswer> => {
+        try{
+            const post:IPosts | undefined = allPostsJson.find((item) => {return item.id == id})
+            if (post ===undefined){
+                return {
+                    response:`post with id ${id} is undefined`,
+                    status:422
+                }
+            }
+            if (body.description){
+                post.description = body.description
+            }
+            if (body.name){
+                post.name = body.name
+            }
+            if (body.likes){
+                post.likes = Number(body.likes)
+            }
+            if (body.img){
+                post.img = body.img
+            }
+            await fsPromises.writeFile(pathToJson, JSON.stringify(allPostsJson,null,4))
+            return {
+                response:post,
+                status:200
+            }
+        }catch(error:unknown){
+            return {
+                response:String(error),
+                status:500
+            }
+        }
+        
+    },
+    createPosts: async (count:number) => {
+        try {
+            await create.createPost(count)
+            allPostsJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
+            return {
+                    status: 200,
+                    response: allPostsJson
+                };
+        } catch (error) {
+            console.log(error)
+           return {
+                    status: 500,
+                    response: String(error)
+                }
+        }
+    }
 }
 
 export default postsMethods

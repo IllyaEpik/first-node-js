@@ -7,5 +7,6 @@ const router:Router = express.Router()
 router.get("/find/:id", controllerData.getPostById)
 router.get("/all", controllerData.getAllPosts)
 router.post("/create", controllerData.createUserPost)
-// router.post("/update", controllerData.createPosts)
+router.patch("/update/:id", controllerData.updateUserPost)
+router.post("/auto/create", controllerData.createPosts)
 export default router
