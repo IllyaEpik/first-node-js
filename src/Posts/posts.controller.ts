@@ -1,26 +1,25 @@
-
-// const postsMethods = require("")
 import postsMethods from "./posts.service.ts";
-import type{ Request, Response } from "express";
-import type { IAnswer, IcountBody, IPostCreate, IPostUpdate } from "./posts.types.ts";
-export default {
-    getPostById: (req:Request,res:Response) => {
+import type { IAnswer, IControllerContract, IcountBody, IPostCreate, IPostUpdate } from "./posts.types.ts";
+const controllerMethods:IControllerContract = {
+    getPostById: (req,res) => {
+        
         const id = Number(req.params.id)
         if (isNaN(id)) {
             res.status(422).json("id must be a number");
             return;
         }
-        const responseData = postsMethods.getPostById(id)
+        const responseData: IAnswer = postsMethods.getPostById(id)
+
         res.status(responseData.status).json(responseData.response)
     },
-    getAllPosts: (req:Request,res:Response) => {
+    getAllPosts: (req,res) => {
         const skip = String(req.query.skip)
         const take = String(req.query.take)
         let filter:boolean = Boolean(req.query.filter)
         const responseData:IAnswer = postsMethods.getAllPosts(skip,take,filter)
         res.status(responseData.status).json(responseData.response)
     },
-    createUserPost: async (req:Request,res:Response) => {
+    createUserPost: async (req,res) => {
         const body:IPostCreate = req.body
         // if server can't get body or user didn't indicate body in request
         if (!body){
@@ -31,7 +30,7 @@ export default {
         res.status(responseData.status).json(responseData.response)
 
     },
-    updateUserPost: async (req:Request,res:Response) => {
+    updateUserPost: async (req,res) => {
         const id:number = Number(req.params.id)
         if (isNaN(id)) {
             res.status(422).json("id must be a number");
@@ -62,7 +61,7 @@ export default {
         res.status(responseData.status).json(responseData.response)
 
     },
-    createPosts: async (req:Request,res:Response) => {
+    createPosts: async (req,res) => {
         const body:IcountBody = req.body
         // if server can't get body or user didn't indicate body in request
         if (!body){
@@ -90,3 +89,4 @@ export default {
     }
     
 }
+export default controllerMethods

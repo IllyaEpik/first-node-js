@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import fsPromises from "fs/promises";
-import type{ IAnswer, IPostCreate, IPosts, IPostUpdate } from "./posts.types.ts";
+import type{IPosts, IServiceContract } from "./posts.types.ts";
 import create from "../Generator.ts";
 import { fileURLToPath } from "url";
 
@@ -11,8 +11,8 @@ const pathToJson = path.join(__dirname+"/posts.json")
 
 let allPostsJson:IPosts[] = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
 
-const postsMethods = {
-    getPostById: (id:Number): IAnswer => {
+const postsMethods: IServiceContract = {
+    getPostById: (id) => {
         const object = allPostsJson.find(object => object.id == id)
         // if post with id is undefined
         if (!object){
@@ -27,7 +27,7 @@ const postsMethods = {
             }
     },
 
-    getAllPosts: (skip:String,take:String,filter:Boolean): IAnswer => {
+    getAllPosts: (skip,take,filter) => {
             
             let localPosts = [ ...allPostsJson ]
             // if filter isn't undefined and it is true
@@ -64,7 +64,7 @@ const postsMethods = {
                 response: localPosts
             }
     },
-    createUserPost: async (body:IPostCreate): Promise<IAnswer> => {
+    createUserPost: async (body) => {
         try {
             
             let listOfRequests = [body]
@@ -120,7 +120,7 @@ const postsMethods = {
             }
         }
     },
-    updateUserPost: async (id:number,body:IPostUpdate):Promise<IAnswer> => {
+    updateUserPost: async (id,body) => {
         try{
             const post:IPosts | undefined = allPostsJson.find((item) => {return item.id == id})
             if (post ===undefined){
@@ -154,7 +154,7 @@ const postsMethods = {
         }
         
     },
-    createPosts: async (count:number) => {
+    createPosts: async (count) => {
         try {
             await create.createPost(count)
             allPostsJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
