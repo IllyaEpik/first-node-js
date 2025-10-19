@@ -1,22 +1,22 @@
 import postsMethods from "./posts.service.ts";
 import type { IAnswer, IControllerContract, IcountBody, IPostCreate, IPostUpdate } from "./posts.types.ts";
 const controllerMethods:IControllerContract = {
-    getPostById: (req,res) => {
+    getPostById: async (req,res) => {
         
         const id = Number(req.params.id)
         if (isNaN(id)) {
             res.status(422).json("id must be a number");
             return;
         }
-        const responseData: IAnswer = postsMethods.getPostById(id)
+        const responseData: IAnswer = await postsMethods.getPostById(id)
 
         res.status(responseData.status).json(responseData.response)
     },
-    getAllPosts: (req,res) => {
-        const skip = String(req.query.skip)
-        const take = String(req.query.take)
+    getAllPosts: async (req,res) => {
+        const skip = req.query.skip
+        const take = req.query.take
         let filter:boolean = Boolean(req.query.filter)
-        const responseData:IAnswer = postsMethods.getAllPosts(skip,take,filter)
+        const responseData:IAnswer = await postsMethods.getAllPosts(skip,take,filter)
         res.status(responseData.status).json(responseData.response)
     },
     createUserPost: async (req,res) => {

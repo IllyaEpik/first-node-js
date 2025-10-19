@@ -3,7 +3,7 @@ import fs from "fs";
 import crypto from "crypto";
 import {generate} from "random-words";
 import type{ IUsers } from "./Users/users.types.ts";
-import type{ IPosts } from "./Posts/posts.types.ts";
+import type{ IPosts,IPostCreate } from "./Posts/posts.types.ts";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,12 +23,11 @@ const imgList:string[] = [
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaNYcBxd8JRW3HuLY5Gwoq0yRSZYmOxlH3Fw&s",
     ""
 ]
-function createPost(countPosts=10):IPosts[]{
-    const array:IPosts[] = []
+function createPost(countPosts=10):IPostCreate[]{
+    const array:IPostCreate[] = []
 
     for (let count = 0; count<countPosts; count++){
-        const object:IPosts = {
-            id: array.length+1,
+        const object:IPostCreate = {
             name: editor(crypto.randomInt(2)+1),
             description: editor(crypto.randomInt(200)+10),
             img: String(imgList[crypto.randomInt(5)]),
@@ -36,10 +35,6 @@ function createPost(countPosts=10):IPosts[]{
         }
         array.push(object)
     }
-    fs.writeFileSync(
-        path.join(__dirname+'/Posts/posts.json'),
-        JSON.stringify(array,null,4)
-    )
     return array
 }
 

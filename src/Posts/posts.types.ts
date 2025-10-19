@@ -1,13 +1,17 @@
 import type{ Response, Request } from "express";
 export interface IPosts {
-    id: number,
-    name: string,
-    description: string,
-    img: string,
-    likes: number
+    id: number;
+    name: string;
+    description: string;
+    img: string | null;
+    likes: number;
 }
-export type IPostCreate = Omit<IPosts,"id"> & {id?:number}
-export type IPostUpdate = Partial<Omit<IPosts,"id"> >
+export type IPostCreate = Omit<IPosts,"id">
+export type IPostUpdate = Partial<Omit<IPosts,"id">>
+export interface getData {
+    skip?:number,
+    take?:number
+}
 export interface IcountBody {
     count: number
 }
@@ -16,8 +20,8 @@ export interface IAnswer {
     status: number
 } 
 export interface IServiceContract {
-    getPostById: (id:Number) => IAnswer
-    getAllPosts: (skip:String,take:String,filter:Boolean) => IAnswer
+    getPostById: (id:number) => Promise<IAnswer>
+    getAllPosts: (skip:String | undefined,take:String | undefined,filter:Boolean) => Promise<IAnswer>
     createUserPost: (body:IPostCreate) => Promise<IAnswer>
     updateUserPost: (id:number,body:IPostUpdate) => Promise<IAnswer>
     createPosts: (count:number) => Promise<IAnswer>
