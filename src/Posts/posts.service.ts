@@ -30,10 +30,7 @@ const postsMethods: IServiceContract = {
 
     getAllPosts: async (skip,take,filter) => {
             
-            // if filter isn't undefined and it is true
-            // if (filter){
-            //     localPosts = localPosts.filter(object => object.name.includes("a"))
-            // }
+            
             // if skip isn't undefined 
             const gottenData:getData = {
 
@@ -64,7 +61,11 @@ const postsMethods: IServiceContract = {
                 gottenData.take = takeNumber
                 // localPosts.splice(takeNumber,localPosts.length-takeNumber)
             }
-            const localPosts:IPosts[] = await repository.getAllPosts(gottenData)
+            let localPosts:IPosts[] = await repository.getAllPosts(gottenData)
+            // if filter isn't undefined and it is true
+            if (filter){
+                localPosts = localPosts.filter(object => object.name.includes("a"))
+            }
             return {
                 status:200,
                 response: localPosts
@@ -115,26 +116,7 @@ const postsMethods: IServiceContract = {
     },
     updateUserPost: async (id,body) => {
         try{
-            // const post:IPosts | undefined = allPostsJson.find((item) => {return item.id == id})
-            // if (post ===undefined){
-            //     return {
-            //         response:`post with id ${id} is undefined`,
-            //         status:422
-            //     }
-            // }
-            // if (body.description){
-            //     post.description = body.description
-            // }
-            // if (body.name){
-            //     post.name = body.name
-            // }
-            // if (body.likes){
-            //     post.likes = Number(body.likes)
-            // }
-            // if (body.img){
-            //     post.img = body.img
-            // }
-            const post = await repository.update(id,body)
+            const post = await repository.updatePost(id,body)
             // await fsPromises.writeFile(pathToJson, JSON.stringify(allPostsJson,null,4))
             return {
                 response:post,
@@ -164,6 +146,23 @@ const postsMethods: IServiceContract = {
                     response: String(error)
                 }
         }
+    },
+    deletePost: async (id) => {
+        try{
+            const post = await repository.deletePost(id)
+            // await fsPromises.writeFile(pathToJson, JSON.stringify(allPostsJson,null,4))
+            return post
+            // {
+            //     response:post,
+            //     status:200
+            // }
+        }catch(error:unknown){
+            return {
+                response:String(error),
+                status:500
+            }
+        }
+        
     }
 }
 

@@ -1,13 +1,19 @@
 import type{ Response, Request } from "express";
-export interface IPosts {
-    id: number;
-    name: string;
-    description: string;
-    img: string | null;
-    likes: number;
-}
-export type IPostCreate = Omit<IPosts,"id">
-export type IPostUpdate = Partial<Omit<IPosts,"id">>
+import { Prisma } from "../generated/prisma/index.js";
+
+export type IPosts = Prisma.PostGetPayload<{
+    // include:{
+    //     tags:true
+    // }
+}>
+
+export type ITagsOnPosts = Prisma.TagsOnPostsGetPayload<{
+
+}>
+export type IPostCreate = Prisma.PostUncheckedCreateInput
+export type IPostUpdate = Prisma.PostUncheckedUpdateInput
+export type IPostCreateChecked = Prisma.PostCreateInput
+export type IPostUpdateChecked = Prisma.PostUpdateInput
 export interface getData {
     skip?:number,
     take?:number
@@ -25,6 +31,7 @@ export interface IServiceContract {
     createUserPost: (body:IPostCreate) => Promise<IAnswer>
     updateUserPost: (id:number,body:IPostUpdate) => Promise<IAnswer>
     createPosts: (count:number) => Promise<IAnswer>
+    deletePost: (id:number) => Promise<IAnswer>
 }
 export interface IControllerContract {
     getPostById: (
@@ -47,5 +54,10 @@ export interface IControllerContract {
         req:Request<object, IPosts[] | string, IcountBody>,
         res:Response<string | IPosts | IPosts[]>
     ) => Promise<void>
+    deletePost: (
+        req:Request<{id:string}, IPosts[] | string, IPosts>,
+        res:Response<string | IPosts | IPosts[]>
+    ) => Promise<void>
+    
 }
 // export type IAnswero = IAnswer

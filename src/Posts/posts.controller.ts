@@ -61,6 +61,14 @@ const controllerMethods:IControllerContract = {
         res.status(responseData.status).json(responseData.response)
 
     },
+    deletePost: async (req,res) => {
+        const id = Number(req.params.id)
+        if (isNaN(id)){
+            res.status(400).json("id must be a number");
+        }
+        const responseData:IAnswer = await postsMethods.deletePost(id);
+        res.status(responseData.status).json(responseData.response)
+    },
     createPosts: async (req,res) => {
         const body:IcountBody = req.body
         // if server can't get body or user didn't indicate body in request

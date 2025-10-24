@@ -1,5 +1,6 @@
-import { PrismaClient } from "../generated/prisma/index.js";
-import type{ getData, IPosts,IPostCreate,IPostUpdate } from "./posts.types.ts";
+
+import { Prisma, PrismaClient } from "../generated/prisma/index.js";
+import type{ getData, IPosts,IPostCreate,IPostUpdate, IAnswer } from "./posts.types.ts";
 const client = new PrismaClient
 
 const repositoryFunctions={
@@ -24,11 +25,36 @@ const repositoryFunctions={
             take:batch.count
         })
     },
-    update: async (id:number,postData:IPostUpdate) => {    
-        return client.post.update({
+    updatePost: async (id:number,postData:IPostUpdate) => {    
+        return await client.post.update({
             where:{id:id},
             data:postData
         })
+    },
+    deletePost: async (id:number): Promise<IAnswer> => {    
+        try {
+            const post = await client.post.delete({
+                where:{id:id}
+            })
+            return {
+                status: 200,
+                response: post
+            }
+        }
+        
+        catch (error:unknown) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError){
+                return {
+                    status: 404,
+                    response: `post with id ${id} is not found`
+                }
+            }
+            return {
+                status: 404,
+                response: String(error)
+            }
+        }
+        
     }
 
 }

@@ -3,7 +3,7 @@ import fs from "fs";
 import crypto from "crypto";
 import {generate} from "random-words";
 import type{ IUsers } from "./Users/users.types.ts";
-import type{ IPosts,IPostCreate } from "./Posts/posts.types.ts";
+import type{ IPostCreate } from "./Posts/posts.types.ts";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

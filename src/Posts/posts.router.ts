@@ -8,5 +8,6 @@ router.get("/find/:id", controllerData.getPostById)
 router.get("/all", controllerData.getAllPosts)
 router.post("/create", controllerData.createUserPost)
 router.patch("/update/:id", controllerData.updateUserPost)
+router.delete("/delete/:id", controllerData.deletePost)
 router.post("/auto/create", controllerData.createPosts)
 export default router
