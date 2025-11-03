@@ -1,9 +1,8 @@
 // import path from "path";
 // import fs from "fs";
 // import fsPromises from "fs/promises";
-import type{getData, IPosts, IServiceContract,IPostCreate } from "./posts.types.ts";
+import type{getData, IPosts, IServiceContract,IPostCreate, IPostUpdate } from "./posts.types.ts";
 import create from "../Generator.ts";
-// import { fileURLToPath } from "url";
 import repository from "./posts.repository.ts";
 // const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // const pathToJson = path.join(__dirname+"/posts.json")
@@ -114,7 +113,7 @@ const postsMethods: IServiceContract = {
             }
         }
     },
-    updateUserPost: async (id,body) => {
+    updateUserPost: async (id,body:IPostUpdate) => {
         try{
             const post = await repository.updatePost(id,body)
             // await fsPromises.writeFile(pathToJson, JSON.stringify(allPostsJson,null,4))
@@ -130,9 +129,9 @@ const postsMethods: IServiceContract = {
         }
         
     },
-    createPosts: async (count) => {
+    createPosts: async (count,userId) => {
         try {
-            const postsData:IPostCreate[] = await create.createPost(count)
+            const postsData:IPostCreate[] = await create.createPost(count,userId)
             const posts:IPosts[] = await repository.createPostByUser(postsData)
             // allPostsJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
             return {
@@ -140,7 +139,6 @@ const postsMethods: IServiceContract = {
                     response: posts
                 };
         } catch (error) {
-            console.log(error)
            return {
                     status: 500,
                     response: String(error)
@@ -150,12 +148,7 @@ const postsMethods: IServiceContract = {
     deletePost: async (id) => {
         try{
             const post = await repository.deletePost(id)
-            // await fsPromises.writeFile(pathToJson, JSON.stringify(allPostsJson,null,4))
             return post
-            // {
-            //     response:post,
-            //     status:200
-            // }
         }catch(error:unknown){
             return {
                 response:String(error),

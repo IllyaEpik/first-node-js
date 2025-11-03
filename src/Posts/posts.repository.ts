@@ -1,37 +1,54 @@
 
-import { Prisma, PrismaClient } from "../generated/prisma/index.js";
-import type{ getData, IPosts,IPostCreate,IPostUpdate, IAnswer } from "./posts.types.ts";
-const client = new PrismaClient
 
-const repositoryFunctions={
-    getAllPosts:async (getData:getData):Promise<IPosts[]> =>{
+import Prisma from "../db/prisma.ts";
+import client from "../db/prismaClient.ts";
+import type{IPostsWithTags, IRepositoryContract } from "./posts.types.ts";
+
+const repositoryFunctions:IRepositoryContract={
+    getAllPosts:async (getData) =>{
         const posts = await client.post.findMany(getData)
         return posts
     },
-    getPostById: async (id:number) => {
+    getPostById: async (id) => {
         const post = await client.post.findFirst({
             where:{id:id}
         })
         console.log(post)
         return post
     },
-    createPostByUser: async (posts:IPostCreate[]) => {
-        const batch = await client.post.createMany({
-            data:posts
-        })
-        const countOfPosts = await client.post.count()-batch.count
+    createPostByUser: async (posts) => {
+        
+        // const batch = await client.post.createMany({
+        //     data:posts,
+        //     include: { tags: true }
+        // })
+        let count;
+        for (count = 0; count < posts.length; count++ ){
+            const post = posts[count]
+            if (post==undefined){
+                break
+            }
+            // post["include"] = {tags:true}
+            await client.post.create({
+                data:post,
+                include: { tags: true }
+            })
+            
+        }
+        
+        const countOfPosts = await client.post.count()-count
         return await repositoryFunctions.getAllPosts({
             skip:countOfPosts,
-            take:batch.count
+            take:count
         })
     },
-    updatePost: async (id:number,postData:IPostUpdate) => {    
+    updatePost: async (id,postData) => {    
         return await client.post.update({
             where:{id:id},
             data:postData
         })
     },
-    deletePost: async (id:number): Promise<IAnswer> => {    
+    deletePost: async (id) => {    
         try {
             const post = await client.post.delete({
                 where:{id:id}
@@ -42,7 +59,7 @@ const repositoryFunctions={
             }
         }
         
-        catch (error:unknown) {
+        catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError){
                 return {
                     status: 404,

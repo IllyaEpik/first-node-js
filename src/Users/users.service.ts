@@ -1,142 +1,161 @@
 // let path = require("path")
 // let fs = require("fs")
 
-import path from "path";
-import fs from "fs";
-import type {IAnswer, IUsers} from "./users.types.ts";
-import { fileURLToPath } from "url";
-// import fsPromises from "fs/promises";
-// Body
-
-// let [createPost, createUsers] = require("./Generator.js")
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const pathToJson = path.join(__dirname+"/users.json")
-console.log(pathToJson)
-// import { createUsers } from "../Generator.js";
-// const {createUsers} = require("../Generator.js")
+// import path from "path";
+// import fs from "fs";
+import type {IAnswer, IUsers,IServiceContract, IUserCreate} from "./users.types.ts";
+import repository from "./users.repository.ts";
 
 
-let allUsersJson:IUsers[] = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
+// let allUsersJson:IUsers[] = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
 
-const usersMethods = {
-    getUserByName: async (name:String): Promise<IAnswer>  => {
-        try {
-            
-            
-            
-            const object = allUsersJson.filter(object => object.name == name)
-            // if user with name from request doesn't exists
-            if (!object){
-                return {
-                    status: 422,
-                    response:`users with name ${name} doesn't exist`
-                }
-            }
+const usersMethods:IServiceContract = {
+    getUserById: async (id) => {
+        // const object = allUsersJson.find(object => object.id == id)
+        const object = await repository.getUserById(id);
+        // if user with id is undefined
+        if (!object){
             return {
-                    status: 200,
-                    response:object
-                }
-            
-        } catch (error) {
-            return {
-                    status:500,
-                    response:String(error)
-                }
-        }
-    },
-    getUserById:  (id:Number,fields?:String | undefined): IAnswer => {
-        
-
-        try {
-            
-            let validObject = allUsersJson.find(object => object.id == id)
-            // let validObject = object
-            // if user with id is undefined
-            if (validObject==undefined){
-                return {
-                        status:422,
-                        response:`doesn't exists user with id ${id}`
-                    };
-            }
-
-            // if user didn't indicate fields in request
-            if (fields){
-                // console.log(fields)
-                let fieldsArray:String[] = fields.split(",")
-                let func = (field:keyof IUsers) => {
-                    let include:boolean = fieldsArray.includes(field)
-                    console.log(include,field)
-                    if (!include){
-                        delete validObject[field]
-                    }
-                    return include
-                }
-                let name = func("name")
-                let email = func("email")
-                let password = func("password")
-                if (!name && !email && !password)
-                    return {
-                        status:422,
-                        response:`fields are undefined, write correct names of fields, exemple: ?fields=name,email,password`
-                    };
-                // }
-            }
-            return {
-                        status:200,
-                        response:validObject
-                    };            
-        } catch (error : unknown) {
-            return {
-                status:500,
-                response:String(error)
+                status:400,
+                response: `doesn't exists user with id ${id}`
             };
         }
+        return {
+                status:200,
+                response: object
+            }
     },
-//     createUsersMany: async (body:Body) => {
-//     try {
-//         // if server can't get body or user didn't indicate body in request
-//         if (!body){
-//             return {
-//                 status:422,
-//                 response: "request doesn't have body or server can't get body, try to set type of body 'raw' or ''"
-//             };
-//         }
-//         // if user didn't indicate count in body
-//         if (!body.count){
-//             return {
-//                 status:422,
-//                 response: "body must have count of posts"
-//             };
-//         }
-//         let count = Number(body.count)
-//         // if count isn't a number
-//         if (isNaN(count)){
-//             return {
-//                 status:422,
-//                 response: "count must be number"
-//             };
-//         }
-//         // if count is too big
-//         if (count>1000){
-//             return {
-//                 status:422,
-//                 response:"count too big, count must be smaller than 1000"
-//             };
-//         }
-//         await createUsers(count)
-//         allUsersJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
-//         return {
-//                 status:200,
-//                 response:allUsersJson
-//             };
+
+    getAllUsers: async (skip,take,filter) => {
+            
+            
+            // if skip isn't undefined 
+            const gottenData:getData = {
+
+            }
+            if (skip){
+                let skipNumber = Number(skip)
+                // if take isn't a number
+                if (isNaN(skipNumber)){
+                    return {
+                        status:400,
+                        response: "skip must be a number"
+                    }
+                }
+                gottenData.skip = skipNumber
+                // localUsers.splice(0,skipNumber)
+            }
+            // if take isn't undefined 
+            if (take){
+                let takeNumber = Number(take)
+                // take = Number(take)
+                // if take isn't a number
+                if (isNaN(takeNumber)){
+                    return {
+                        status:400,
+                        response: "take must be a number"
+                    }
+                }
+                gottenData.take = takeNumber
+                // localUsers.splice(takeNumber,localUsers.length-takeNumber)
+            }
+            let localUsers:IUsers[] = await repository.getAllUsers(gottenData)
+            // if filter isn't undefined and it is true
+            if (filter){
+                localUsers = localUsers.filter(object => object.name.includes("a"))
+            }
+            return {
+                status:200,
+                response: localUsers
+            }
+    },
+    createUser: async (body) => {
+        try {
+            
+            let listOfRequests = [body]
+            // if user want to create many users
+            if (Array.isArray(body)){
+                listOfRequests = body
+            }
+            for (const item of listOfRequests){
+                // if user didn't indicate name for user
+                if (!item.name && item.name.trim() === ""){
+                    return {
+                        status: 422,
+                        response: "request must have name"
+                    }
+                }
+                // if user didn't indicate description for user
+                if (!item.description && item.description!=""){
+                    return {
+                        status: 422,
+                        response: "request must have description"
+                    }
+                }
+                // if user didn't indicate img for user
+                if (item.img != null && typeof item.img != "string"){
+                    return {
+                        status: 422,
+                        response: "request must have img"
+                    }
+                }
+            }
+            await repository.createUserByUser(listOfRequests)
+            return {
+                status: 200,
+                response: await repository.getAllUsers({})
+            }
+        } catch (error:unknown) {
+            return {
+                status: 500,
+                response: String(error)
+            }
+        }
+    },
+    updateUser: async (id,body:IUserUpdate) => {
+        try{
+            const user = await repository.updateUser(id,body)
+            // await fsPromises.writeFile(pathToJson, JSON.stringify(allUsersJson,null,4))
+            return {
+                response:user,
+                status:200
+            }
+        }catch(error:unknown){
+            return {
+                response:String(error),
+                status:500
+            }
+        }
         
-//     } catch (error) {
-//         return {
-//             status:500,
-//             response:error
-//         };
-//     }
-// }
+    },
+    // createUsers: async (count,userId) => {
+    //     try {
+    //         const usersData:IUserCreate[] = await create.createUser(count,userId)
+    //         const users:IUsers[] = await repository.createUserByUser(usersData)
+    //         // allUsersJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
+    //         return {
+    //                 status: 200,
+    //                 response: users
+    //             };
+    //     } catch (error) {
+    //        return {
+    //                 status: 500,
+    //                 response: String(error)
+    //             }
+    //     }
+    // },
+    deleteUser: async (id) => {
+        try{
+            const user = await repository.deleteUser(id)
+            return user
+        }catch(error:unknown){
+            return {
+                response:String(error),
+                status:500
+            }
+        }
+        
+    }
 }
 
 export default usersMethods

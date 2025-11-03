@@ -19,7 +19,6 @@ const controllerData =  {
             return;
         }
         const fields: string | undefined = typeof req.query.fields === "string" ? req.query.fields : undefined;
-        // const fields = req.query.fields
         const responseData = usersMethods.getUserById(id,fields);
         res.status(responseData.status).json(responseData.response)
     },
