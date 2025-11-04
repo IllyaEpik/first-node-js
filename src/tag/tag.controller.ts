@@ -17,6 +17,18 @@ const controllerMethods:IControllerContract = {
         }
         const tags = await tagsMethods.getById(id)
         res.status(tags.status).json(tags.response)
-    }
+    },
+    create: async (req, res) => {
+        let name = req.body
+        if (typeof name === "string"){
+            name = Array(name)
+        }
+        if (name==undefined){
+            res.status(400).send("request must have a name")
+        }
+        const ans = await tagsMethods.create(name)
+        res.status(ans.status).send(ans.response)    
+        
+    },
 }
 export default controllerMethods

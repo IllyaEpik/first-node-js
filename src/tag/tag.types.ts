@@ -21,6 +21,7 @@ export interface IAnswer{
 export interface IServiceContract{
     getAll: (data:getData) => Promise<IAnswerMultiple>
     getById: (id:number) => Promise<IAnswer>
+    create: (name:string[]) => Promise<IAnswerMultiple>
 }
 export interface IControllerContract{
     getAll: (
@@ -31,8 +32,13 @@ export interface IControllerContract{
         req: Request<{id:string}, ITags | string, object>,
         res: Response<string | ITags | null>
     ) => Promise<void>
+    create: (
+        req: Request<object, ITags | string, string[] | string>,
+        res: Response<string | ITags | null | ITags[]>
+    ) => Promise<void>
 }
 export interface IRepositoryContract{
     getAll: (data:getData) => Promise<IAnswerMultiple>
     getById: (id:number) => Promise<IAnswer>
+    create: (nameArray:string[]) => Promise<IAnswerMultiple>
 }

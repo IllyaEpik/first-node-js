@@ -43,6 +43,35 @@ const repositoryFunctions:IRepositoryContract = {
             }
         }
         
-    }
+    },
+    create: async (nameArray) => {
+        const tags = []
+        for (let index = 0; index < nameArray.length; index++) {
+            const name = nameArray[index];
+            if (name==undefined){
+                continue
+            }
+            try {
+                const tag = await client.tag.create({data:{name}})
+                tags.push(tag)
+                
+            } catch (error) {
+                if (error instanceof Prisma.PrismaClientKnownRequestError){
+                    return {
+                        status: 404,
+                        response: `tag ${name} can't be created`
+                    }
+                }
+                return {
+                    response:String(error),
+                    status:404
+                }
+            }
+        }
+        return {
+            response:tags,
+            status:200
+        }
+    },
 }
 export default repositoryFunctions

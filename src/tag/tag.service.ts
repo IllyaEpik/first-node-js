@@ -7,6 +7,9 @@ const tagsMethods: IServiceContract = {
     },
     getById: async (id) => {
         return await repository.getById(id)
+    },
+    create: async (name) => {
+        return await repository.create(name)
     }
 }
 export default tagsMethods

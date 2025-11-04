@@ -2,7 +2,7 @@
 
 import Prisma from "../db/prisma.ts";
 import client from "../db/prismaClient.ts";
-import type{IPostsWithTags, IRepositoryContract } from "./posts.types.ts";
+import type{IRepositoryContract } from "./posts.types.ts";
 
 const repositoryFunctions:IRepositoryContract={
     getAllPosts:async (getData) =>{
@@ -28,7 +28,6 @@ const repositoryFunctions:IRepositoryContract={
             if (post==undefined){
                 break
             }
-            // post["include"] = {tags:true}
             await client.post.create({
                 data:post,
                 include: { tags: true }
