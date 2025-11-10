@@ -70,8 +70,31 @@ const repositoryFunctions:IRepositoryContract={
                 response: String(error)
             }
         }
+    },  
+    // addTagsToPost: async (id, names) => {
+    //     try {
+    //         const post = await client.post.update({
+    //             tags:
+    //         })
+    //         return {
+    //             status: 200,
+    //             response: post
+    //         }
+    //     }
         
-    }
+    //     catch (error) {
+    //         if (error instanceof Prisma.PrismaClientKnownRequestError){
+    //             return {
+    //                 status: 404,
+    //                 response: `post with id ${id} is not found`
+    //             }
+    //         }
+    //         return {
+    //             status: 404,
+    //             response: String(error)
+    //         }
+    //     }
+    // },
 
 }
 export default repositoryFunctions

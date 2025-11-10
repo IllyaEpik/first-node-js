@@ -26,15 +26,15 @@ model Post{
     likes Int @default(0)
     tags TagsOnPosts[]
 
-    // user User? @relation(fields: [userId], references: [id])
-    // userId Int?
+    user User @relation(fields: [userId], references: [id])
+    userId Int
 }
 model User{
     id Int @id @unique @default(autoincrement())
     name String 
     password String
-    email String
-    // post Post[]
+    email String @unique
+    post Post[]
 }
 model TagsOnPosts{
     post Post @relation(fields: [postId], references: [id])

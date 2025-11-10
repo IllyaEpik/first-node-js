@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import crypto from "crypto";
 import {generate} from "random-words";
-import type{ IUsers } from "./Users/users.types.ts";
+import type{ IUser } from "./User/user.types.ts";
 import type{ IPostCreate } from "./Posts/posts.types.ts";
 // import type{ ITagCreate } from "./Posts/posts.types.ts"; /
 import { fileURLToPath } from "url";
@@ -39,11 +39,11 @@ function createPost(countPosts=10,userId:number):IPostCreate[]{
     }
     return array
 }
-function createTag(){
+// function createTag(){
 
-}
-function createUsers(countUsers=10):IUsers[]{
-    const array:IUsers[] = []
+// }
+function createUsers(countUsers=10):IUser[]{
+    const array:IUser[] = []
     for (let count = 0; count<countUsers; count++){
         let object = {
             id: array.length+1,

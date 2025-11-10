@@ -17,6 +17,7 @@ export type ITagsOnPosts = Prisma.TagsOnPostsGetPayload<{
 
 export type IPostCreate = Prisma.PostUncheckedCreateInput
 export type IPostUpdate = Prisma.PostUncheckedUpdateInput
+
 export type IPostCreateChecked = Prisma.PostCreateInput
 export type IPostUpdateChecked = Prisma.PostUpdateInput
 export interface getData {
@@ -69,9 +70,10 @@ export interface IControllerContract {
 export interface IRepositoryContract {
     getPostById: (id:number) => Promise<IPosts | null>
     getAllPosts: (getData:getData) => Promise<IPosts[]>
-    createPostByUser: (posts:IPostCreateChecked[]) => Promise<IPosts[]>
+    createPostByUser: (posts:IPostCreate[]) => Promise<IPosts[]>
     updatePost: (id:number,postData:IPostUpdate) => Promise<IPosts | null>
     // createPosts: (count:number) => Promise<IAnswer>
     deletePost: (id:number) => Promise<IAnswer>
+    // addTagsToPost: (id:number,names:string[]) => Promise<IAnswer>
 }
 // export type IAnswero = IAnswer

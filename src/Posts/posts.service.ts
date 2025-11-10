@@ -100,6 +100,14 @@ const postsMethods: IServiceContract = {
                         response: "request must have img"
                     }
                 }
+                
+                // if user didn't indicate user for post
+                if (isNaN(Number(item.userId))){
+                    return {
+                        status: 422,
+                        response: "request must have img"
+                    }
+                }
             }
             await repository.createPostByUser(listOfRequests)
             return {
