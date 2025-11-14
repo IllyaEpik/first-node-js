@@ -14,19 +14,28 @@ export type UserWithoutId = Prisma.UserGetPayload<{
         id:true
     }
 }>
+export type UserCreate = Prisma.UserUncheckedCreateInput
 export type UserSecurity = Prisma.UserGetPayload<{
     omit:{
         id:true,
         password:true
     }
 }>
+export type UserSecurityWithId = Prisma.UserGetPayload<{
+    omit:{
+        password:true
+    }
+}>
+export interface IJWT{
+    id:number
+}
 // export type UserLogin = Prisma.UserGetPayload<{
 //     omit:{
 //         id:true,
 //         name:true
 //     }
 // }>
-export type UserInput = UserWithoutId & {confirmPassword:string}
+// export type UserInput = UserWithoutId & {confirmPassword:string}
 export type UserLogin = Omit<UserWithoutId,"name">
 // export type ITagsOnUsers = Prisma.TagsOnUsersGetPayload<{
 
@@ -54,22 +63,27 @@ export interface IAnswerMultiple {
 
 export interface IControllerContract {
     registation: (
-        req:Request<object, UserSecurity | string, UserInput>,
+        req:Request<object, UserSecurity | string, UserCreate>,
         res:Response<string | UserSecurity | null>
     ) => Promise<void>
     login: (
         req:Request<object, UserSecurity | string, UserLogin>,
         res:Response<string | UserSecurity | null>
     ) => Promise<void>
+    me: (
+        req:Request<object, UserSecurity | string, object>,
+        res:Response<string | UserSecurity | null>
+    ) => Promise<void>
 }
 
 export interface IRepositoryContract {
-    createUser: (user:UserWithoutId) => Promise<UserSecurity | null>
+    createUser: (user:UserCreate) => Promise<UserSecurityWithId | null>
     getUser: (email:string) => Promise<IUser | null>
+    getUserById: (id:number)=> Promise<UserSecurity | null>
     
 }
 export interface IServiceContract {
-    registation: (user:UserInput) => Promise<UserSecurity | null | string>
-    login: (userData:UserLogin) => Promise<UserSecurity | null | string>
-
+    registation: (user:UserCreate) => Promise<string>
+    login: (userData:UserLogin) => Promise<string>
+    me: (id:number) => Promise<UserSecurity | null | string>
 }

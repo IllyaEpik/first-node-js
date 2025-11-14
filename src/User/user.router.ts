@@ -6,6 +6,7 @@ import controllerData from "./user.controller.ts";
 const router:Router = express.Router()
 router.post("/registration", controllerData.registation)
 router.post("/login", controllerData.login)
+router.get("/me", controllerData.me)
 // router.get("/byName/:name", controllerData.getUserByName)
 // router.get("/byId/:id", controllerData.getUserById)
 // router.post("/create", controllerData.createUsersMany)

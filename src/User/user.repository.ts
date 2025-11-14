@@ -2,11 +2,12 @@
 
 import Prisma from "../db/prisma.ts";
 import client from "../db/prismaClient.ts";
-import type{IRepositoryContract, UserWithoutId } from "./user.types.ts";
+import type{IRepositoryContract } from "./user.types.ts";
 
 const repositoryFunctions:IRepositoryContract={
-    createUser: async (user:UserWithoutId)=> {
+    createUser: async (user)=> {
         try {
+            // const 
             const createdUser = await client.user.create({data:user})
             return createdUser
         } catch (error) {
@@ -19,10 +20,10 @@ const repositoryFunctions:IRepositoryContract={
                         console.log("Connection pool timeout")
                         break
                     case "P2025":
-                        console.log("Related record not found")
+                        console.log("user not found")
                         break
                     default:
-                        console.log("Database error:", error.code)
+                        console.log(`Database error: ${error.code}`)
                 }
             }
             throw error
@@ -47,11 +48,40 @@ const repositoryFunctions:IRepositoryContract={
                         console.log("User not found")
                         break
                     default:
-                        console.log("Database error:", error.code)
+                        console.log(`Database error: ${error.code}`)
                 }
             }
             throw error
         }
+    },
+    getUserById: async (id) => {
+        try {
+            
+            const user = await client.user.findUnique({
+                where:{
+                    id
+                },
+                omit:{
+                    id:true
+                }
+            })
+            return user
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                switch(error.code) {
+                    case "P2024":
+                        console.log("Connection pool timeout")
+                        break
+                    case "P2025":
+                        console.log("User not found")
+                        break
+                    default:
+                        console.log(`Database error: ${error.code}`)
+                }
+            }
+            throw error
+        
+    }
     }
 }
 export default repositoryFunctions

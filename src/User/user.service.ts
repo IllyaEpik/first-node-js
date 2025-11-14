@@ -1,15 +1,20 @@
 
 import type {IServiceContract} from "./user.types.ts";
 import repository from "./user.repository.ts";
-
+import SECRET_KEY from "../config/env.ts";
+import jwt from "jsonwebtoken";
 const usersMethods:IServiceContract = {
     registation: async (user) => {
-        if (user.confirmPassword != user.password){
-            return "password and confirm password are different"
-
+        const createdUser = await repository.createUser(user);
+        if (createdUser){
+            const token = jwt.sign({id: createdUser.id},SECRET_KEY,{
+                expiresIn:"7d"
+            })
+            return token
         }
-        const gottenUser = await repository.createUser(user);
-            return gottenUser
+
+        return "error"
+        
     },
     login: async (userData) => {
         const user = await repository.getUser(userData.email)
@@ -19,8 +24,18 @@ const usersMethods:IServiceContract = {
         if (user?.password != userData.password){
             return "wrong password or email"
         }
-        return user
+        const token = jwt.sign({id:user.id},SECRET_KEY,{
+            expiresIn:"7d"
+        })
+        return token
     },
+    me: async (id) => {
+        const user = await repository.getUserById(id)
+        if (!user){
+            return `doesn't exist user with id ${id}`
+        }
+        return user
+    }
 }
 
 export default usersMethods
