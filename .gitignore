@@ -4,3 +4,5 @@
 check.py
 check.js
 .env
+migrations/
+database

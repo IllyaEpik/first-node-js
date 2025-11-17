@@ -1,13 +1,16 @@
 
 
+import { hash } from "bcryptjs";
 import Prisma from "../db/prisma.ts";
 import client from "../db/prismaClient.ts";
 import type{IRepositoryContract } from "./user.types.ts";
 
 const repositoryFunctions:IRepositoryContract={
+    
     createUser: async (user)=> {
         try {
             // const 
+            user.password = await hash(user.password,10)
             const createdUser = await client.user.create({data:user})
             return createdUser
         } catch (error) {
@@ -56,13 +59,13 @@ const repositoryFunctions:IRepositoryContract={
     },
     getUserById: async (id) => {
         try {
-            
+            console.log(id)
             const user = await client.user.findUnique({
                 where:{
-                    id
+                    id:id
                 },
                 omit:{
-                    id:true
+                    password:true
                 }
             })
             return user

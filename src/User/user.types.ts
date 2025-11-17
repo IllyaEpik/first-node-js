@@ -72,14 +72,19 @@ export interface IControllerContract {
     ) => Promise<void>
     me: (
         req:Request<object, UserSecurity | string, object>,
-        res:Response<string | UserSecurity | null>
+        res:Response<string | UserSecurity | null, {userId:number}>
+    ) => Promise<void>
+    checkAndSend: (
+        data:string | UserSecurity | null,
+        res:Response<string | UserSecurity | null>,
+        
     ) => Promise<void>
 }
 
 export interface IRepositoryContract {
     createUser: (user:UserCreate) => Promise<UserSecurityWithId | null>
     getUser: (email:string) => Promise<IUser | null>
-    getUserById: (id:number)=> Promise<UserSecurity | null>
+    getUserById: (id:number)=> Promise<UserSecurityWithId | null>
     
 }
 export interface IServiceContract {

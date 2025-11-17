@@ -32,7 +32,6 @@ function createPost(countPosts=10,userId:number):IPostCreate[]{
             name: editor(crypto.randomInt(2)+1),
             description: editor(crypto.randomInt(200)+10),
             img: String(imgList[crypto.randomInt(5)]),
-            likes:crypto.randomInt(10000),
             userId:userId
         }
         array.push(object)
@@ -42,28 +41,28 @@ function createPost(countPosts=10,userId:number):IPostCreate[]{
 // function createTag(){
 
 // }
-function createUsers(countUsers=10):IUser[]{
-    const array:IUser[] = []
-    for (let count = 0; count<countUsers; count++){
-        let object = {
-            id: array.length+1,
-            name: editor(crypto.randomInt(2)+1),
-            password: editor(1),
-            email: `${editor(1)}@gmail.com`
-        }
-        array.push(object)
-    }
-    console.log(path.join(__dirname+'/jsons/users.json'))
-    fs.writeFileSync(
-        path.join(__dirname+'/Posts/users.json'),
-        JSON.stringify(array,null,4)
-    )
-    return array
-}
+// function createUsers(countUsers=10):IUser[]{
+//     const array:IUser[] = []
+//     for (let count = 0; count<countUsers; count++){
+//         let obj = {
+//             id: array.length+1,
+//             name: editor(crypto.randomInt(2)+1),
+//             password: editor(1),
+//             email: `${editor(1)}@gmail.com`
+//         }
+//         array.push(obj)
+//     }
+//     console.log(path.join(__dirname+'/jsons/users.json'))
+//     fs.writeFileSync(
+//         path.join(__dirname+'/Posts/users.json'),
+//         JSON.stringify(array,null,4)
+//     )
+//     return array
+// }
 // createUsers(321)
 // export createUsers
 
 export default {
     "createPost":createPost, 
-    "createUsers":createUsers
+    // "createUsers":createUsers
 }

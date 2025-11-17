@@ -34,10 +34,10 @@ export interface IAnswer {
 export interface IServiceContract {
     getPostById: (id:number) => Promise<IAnswer>
     getAllPosts: (skip:String | undefined,take:String | undefined,filter:Boolean) => Promise<IAnswer>
-    createUserPost: (body:IPostCreate) => Promise<IAnswer>
-    updateUserPost: (id:number,body:IPostUpdate) => Promise<IAnswer>
+    createUserPost: (body:IPostCreate,userId:number) => Promise<IAnswer>
+    updateUserPost: (id:number,body:IPostUpdate,userId:number) => Promise<IAnswer>
     createPosts: (count:number,userId:number) => Promise<IAnswer>
-    deletePost: (id:number) => Promise<IAnswer>
+    deletePost: (id:number,userId:number) => Promise<IAnswer>
 }
 export interface IControllerContract {
     getPostById: (
@@ -50,19 +50,19 @@ export interface IControllerContract {
     ) => void
     createUserPost: (
         req:Request<object, IPosts[] | string, IPostCreate>,
-        res:Response<string | IPosts | IPosts[] | null>
+        res:Response<string | IPosts | IPosts[] | null,{userId:number}>
     ) => Promise<void>
     updateUserPost: (
         req:Request<{id:string}, IPosts | string, IPostUpdate>,
-        res:Response<string | IPosts | IPosts[] | null>
+        res:Response<string | IPosts | IPosts[] | null,{userId:number}>
     ) => Promise<void>
     createPosts: (
         req:Request<object, IPosts[] | string, IcountBody>,
-        res:Response<string | IPosts | IPosts[] | null>
+        res:Response<string | IPosts | IPosts[] | null,{userId:number}>
     ) => Promise<void>
     deletePost: (
         req:Request<{id:string}, IPosts[] | string, IPosts>,
-        res:Response<string | IPosts | IPosts[] | null>
+        res:Response<string | IPosts | IPosts[] | null,{userId:number}>
     ) => Promise<void>
     
 }
@@ -70,7 +70,7 @@ export interface IControllerContract {
 export interface IRepositoryContract {
     getPostById: (id:number) => Promise<IPosts | null>
     getAllPosts: (getData:getData) => Promise<IPosts[]>
-    createPostByUser: (posts:IPostCreate[]) => Promise<IPosts[]>
+    createPostByUser: (posts:IPostCreate[],userId:number) => Promise<IPosts[]>
     updatePost: (id:number,postData:IPostUpdate) => Promise<IPosts | null>
     // createPosts: (count:number) => Promise<IAnswer>
     deletePost: (id:number) => Promise<IAnswer>

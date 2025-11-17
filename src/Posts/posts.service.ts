@@ -1,18 +1,12 @@
-// import path from "path";
-// import fs from "fs";
-// import fsPromises from "fs/promises";
 import type{getData, IPosts, IServiceContract,IPostCreate, IPostUpdate } from "./posts.types.ts";
 import create from "../Generator.ts";
 import repository from "./posts.repository.ts";
-// const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// const pathToJson = path.join(__dirname+"/posts.json")
+import userRepository from "../User/user.repository.ts";
 
 
-// let allPostsJson:IPosts[] = JSON.parse(fs.readFileSync(pathToJson, 'utf-8'));
 
 const postsMethods: IServiceContract = {
     getPostById: async (id) => {
-        // const object = allPostsJson.find(object => object.id == id)
         const object = await repository.getPostById(id);
         // if post with id is undefined
         if (!object){
@@ -44,12 +38,10 @@ const postsMethods: IServiceContract = {
                     }
                 }
                 gottenData.skip = skipNumber
-                // localPosts.splice(0,skipNumber)
             }
             // if take isn't undefined 
             if (take){
-                let takeNumber = Number(take)
-                // take = Number(take)
+                const takeNumber = Number(take)
                 // if take isn't a number
                 if (isNaN(takeNumber)){
                     return {
@@ -70,9 +62,9 @@ const postsMethods: IServiceContract = {
                 response: localPosts
             }
     },
-    createUserPost: async (body) => {
+    createUserPost: async (body,userId) => {
         try {
-            
+
             let listOfRequests = [body]
             // if user want to create many posts
             if (Array.isArray(body)){
@@ -102,14 +94,14 @@ const postsMethods: IServiceContract = {
                 }
                 
                 // if user didn't indicate user for post
-                if (isNaN(Number(item.userId))){
-                    return {
-                        status: 422,
-                        response: "request must have img"
-                    }
-                }
+                // if (isNaN(Number(item.userId))){
+                //     return {
+                //         status: 422,
+                //         response: "request must have img"
+                //     }
+                // }
             }
-            await repository.createPostByUser(listOfRequests)
+            await repository.createPostByUser(listOfRequests,userId)
             return {
                 status: 200,
                 response: await repository.getAllPosts({})
@@ -121,12 +113,22 @@ const postsMethods: IServiceContract = {
             }
         }
     },
-    updateUserPost: async (id,body:IPostUpdate) => {
+    updateUserPost: async (id,body:IPostUpdate,userId) => {
         try{
-            const post = await repository.updatePost(id,body)
+            const user = await userRepository.getUserById(userId)
+
+            const post = await repository.getPostById(id)
+            if (post?.userId!=user?.id){
+                return {
+                    response:"you are not a creator of this post",
+                    status:400
+                }
+            }
+            
+            const updatedPost = await repository.updatePost(id,body)
             // await fsPromises.writeFile(pathToJson, JSON.stringify(allPostsJson,null,4))
             return {
-                response:post,
+                response:updatedPost,
                 status:200
             }
         }catch(error:unknown){
@@ -140,7 +142,7 @@ const postsMethods: IServiceContract = {
     createPosts: async (count,userId) => {
         try {
             const postsData:IPostCreate[] = await create.createPost(count,userId)
-            const posts:IPosts[] = await repository.createPostByUser(postsData)
+            const posts:IPosts[] = await repository.createPostByUser(postsData,userId)
             // allPostsJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
             return {
                     status: 200,
@@ -153,10 +155,18 @@ const postsMethods: IServiceContract = {
                 }
         }
     },
-    deletePost: async (id) => {
+    deletePost: async (id,userId) => {
         try{
-            const post = await repository.deletePost(id)
-            return post
+            const user = await userRepository.getUserById(userId)
+            const post = await repository.getPostById(id)
+            if (post?.userId!=user?.id){
+                return {
+                    response:"you are not a creator of this post",
+                    status:400
+                }
+            }
+            const deletedPost = await repository.deletePost(id)
+            return deletedPost
         }catch(error:unknown){
             return {
                 response:String(error),

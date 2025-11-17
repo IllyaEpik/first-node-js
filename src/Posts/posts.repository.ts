@@ -16,18 +16,15 @@ const repositoryFunctions:IRepositoryContract={
         console.log(post)
         return post
     },
-    createPostByUser: async (posts) => {
-        
-        // const batch = await client.post.createMany({
-        //     data:posts,
-        //     include: { tags: true }
-        // })
+    createPostByUser: async (posts,userId) => {
         let count;
         for (count = 0; count < posts.length; count++ ){
             const post = posts[count]
             if (post==undefined){
                 break
             }
+            post.userId = userId
+            console.log(post,userId)
             await client.post.create({
                 data:post,
                 include: { tags: true }
