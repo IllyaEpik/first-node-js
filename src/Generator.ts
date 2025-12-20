@@ -1,13 +1,12 @@
-import path from "path";
-import fs from "fs";
+// import path from "path";
 import crypto from "crypto";
 import {generate} from "random-words";
 import type{ IUser } from "./User/user.types.ts";
 import type{ IPostCreate } from "./Posts/posts.types.ts";
 // import type{ ITagCreate } from "./Posts/posts.types.ts"; /
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const editor = (count:number):string => {
     
     let data:string | string[] = generate(count)

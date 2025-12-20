@@ -3,7 +3,7 @@ import type {IServiceContract} from "./user.types.ts";
 import repository from "./user.repository.ts";
 import SECRET_KEY from "../config/env.ts";
 import jwt from "jsonwebtoken";
-import { compare, hash } from "bcryptjs";
+import { compare } from "bcryptjs";
 const usersMethods:IServiceContract = {
     registation: async (user) => {
         const createdUser = await repository.createUser(user);

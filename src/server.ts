@@ -3,7 +3,12 @@ import UsersRouter from "./User/user.router.ts";
 import tagRouter from "./tag/tag.router.ts";
 import express from "express";
 import type { Express } from "express"; 
+import cors from "cors";
 const app:Express = express()
+app.use(cors({
+    origin: ['http://127.0.0.1:3000', 'http://localhost:3000'],
+  credentials: true
+}))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use("/posts",postsRouter)

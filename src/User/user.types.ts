@@ -77,7 +77,6 @@ export interface IControllerContract {
     checkAndSend: (
         data:string | UserSecurity | null,
         res:Response<string | UserSecurity | null>,
-        
     ) => Promise<void>
 }
 

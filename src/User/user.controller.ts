@@ -44,7 +44,7 @@ const controllerData:IControllerContract =  {
     },
     me: async (req,res) => {
         const id = res.locals.userId
-        console.log(id)
+        console.log(req)
         const user = await usersMethods.me(id)
         controllerData.checkAndSend(user,res)
     }

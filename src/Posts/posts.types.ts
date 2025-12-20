@@ -72,7 +72,7 @@ export interface IRepositoryContract {
     getAllPosts: (getData:getData) => Promise<IPosts[]>
     createPostByUser: (posts:IPostCreate[],userId:number) => Promise<IPosts[]>
     updatePost: (id:number,postData:IPostUpdate) => Promise<IPosts | null>
-    // createPosts: (count:number) => Promise<IAnswer>
+    createPosts: (count:number) => Promise<IAnswer>
     deletePost: (id:number) => Promise<IAnswer>
     // addTagsToPost: (id:number,names:string[]) => Promise<IAnswer>
 }
