@@ -23,23 +23,24 @@ model Post{
     name String 
     description String
     img String?
-    // likes User[] @relation(name:"likesToPost")
+    likes User[] @relation(name:"likesToPost")
     tags TagsOnPosts[]
     createdBy User @relation(fields: [userId], references: [id])
     userId Int
 
     likesToPosts likesToPost[]
+    commnets Comment[]
 }
 model User{
     id Int @id @unique @default(autoincrement())
-    firstName String 
+    firstName String?
     secondName String?
     password String
     avatar String? @unique
     email String @unique
     isAdmin Boolean @default(false)
-    // likes Post[] @relation(name:"likesToPost")
-
+    likes Post[] @relation(name:"likesToPost")
+    commnets Comment[]
     createdPosts Post[]
 
     likesToPosts likesToPost[]
@@ -57,4 +58,15 @@ model likesToPost{
     user User @relation(fields: [userId], references: [id])
     userId Int
     @@id([postId,userId])
+}
+model Comment {
+    id Int @id @unique @default(autoincrement())
+    body String
+    createdAt DateTime @default(now())
+    
+    post Post @relation(fields: [postId], references: [id])
+    postId Int
+    user User @relation(fields: [userId], references: [id])
+    userId Int
+
 }

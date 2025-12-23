@@ -1,4 +1,4 @@
-import type{getData, IPosts, IServiceContract,IPostCreate, IPostUpdate } from "./posts.types.ts";
+import type{getData, IPosts, IServiceContract,IPostCreate } from "./posts.types.ts";
 import create from "../Generator.ts";
 import repository from "./posts.repository.ts";
 import userRepository from "../User/user.repository.ts";
@@ -113,11 +113,17 @@ const postsMethods: IServiceContract = {
             }
         }
     },
-    updateUserPost: async (id,body:IPostUpdate,userId) => {
+    updateUserPost: async (id,body,userId) => {
         try{
             const user = await userRepository.getUserById(userId)
 
             const post = await repository.getPostById(id)
+            if (typeof post === "string"){
+                return {
+                    response:post,
+                    status:400
+                }
+            }
             if (post?.userId!=user?.id){
                 return {
                     response:"you are not a creator of this post",
@@ -159,22 +165,51 @@ const postsMethods: IServiceContract = {
         try{
             const user = await userRepository.getUserById(userId)
             const post = await repository.getPostById(id)
-            if (post?.userId!=user?.id){
+            if (typeof post === "string"){
                 return {
-                    response:"you are not a creator of this post",
+                    response:post,
                     status:400
                 }
             }
+            if (post?.userId!=user?.id){
+                return {
+                    response:"you are not a creator of this post",
+                    status:403
+                }
+            }
             const deletedPost = await repository.deletePost(id)
-            return deletedPost
+            return {
+                response:deletedPost,
+                status:204
+            }
         }catch(error:unknown){
             return {
                 response:String(error),
                 status:500
             }
         }
-        
-    }
+    },
+    likePost: async (postId, userId) =>{
+        const data = await repository.likePost(postId,userId)
+        return {
+            response:data,
+            status:201
+        }
+    },
+    unlikePost: async (postId, userId) =>{
+        const data = await repository.unlikePost(postId,userId)
+        return {
+            response:data,
+            status:204
+        }
+    },
+    makeComment: async (body, postId, userId) =>{
+        const comment = await repository.createComment(body, postId, userId)
+        return {
+            response:comment,
+            status:200
+        }
+    },
 }
 
 export default postsMethods

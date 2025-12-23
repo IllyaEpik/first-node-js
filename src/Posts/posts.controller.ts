@@ -1,5 +1,5 @@
 import postsMethods from "./posts.service.ts";
-import type { IAnswer, IControllerContract, IcountBody, IPostCreate, IPostUpdate } from "./posts.types.ts";
+import type {IControllerContract } from "./posts.types.ts";
 const controllerMethods:IControllerContract = {
     getPostById: async (req,res) => {
         
@@ -8,55 +8,55 @@ const controllerMethods:IControllerContract = {
             res.status(422).json("id must be a number");
             return;
         }
-        const responseData: IAnswer = await postsMethods.getPostById(id)
-
+        const responseData = await postsMethods.getPostById(id)
+        
         res.status(responseData.status).json(responseData.response)
     },
     getAllPosts: async (req,res) => {
         const skip = req.query.skip
         const take = req.query.take
-        let filter:boolean = Boolean(req.query.filter)
-        const responseData:IAnswer = await postsMethods.getAllPosts(skip,take,filter)
+        let filter = Boolean(req.query.filter)
+        const responseData = await postsMethods.getAllPosts(skip,take,filter)
         res.status(responseData.status).json(responseData.response)
     },
     createUserPost: async (req,res) => {
 
         const userId = res.locals.userId
-        const body:IPostCreate = req.body
+        const body = req.body
         // if server can't get body or user didn't indicate body in request
         if (!body){
             res.status(422).json("request must have body")
             return;
         }
-        const responseData:IAnswer = await postsMethods.createUserPost(body,userId)
+        const responseData = await postsMethods.createUserPost(body,userId)
         res.status(responseData.status).json(responseData.response)
 
     },
     updateUserPost: async (req,res) => {
-        const id:number = Number(req.params.id)
+        const id = Number(req.params.id)
         const userId = res.locals.userId
         if (isNaN(id)) {
             res.status(422).json("id must be a number");
             return;
         }
-        const body:IPostUpdate = req.body;
+        const body = req.body;
         if (!body){
             res.status(422).json("request must have body");
             return;
         }
-        if (typeof body.name !== "string" && body.name != undefined) {
-            res.status(422).json("name must be a string or undefined");
-            return;
-        }
-        if (typeof body.description !== "string" && body.description != undefined) {
-            res.status(422).json("description must be a string or undefined");
-            return;
-        }
-        if (typeof body.img !== "string" && body.img != undefined) {
-            res.status(422).json("img must be a string or undefined");
-            return;
-        }
-        const responseData:IAnswer = await postsMethods.updateUserPost(id,body,userId);
+        // if (typeof body.name !== "string" && body.name != undefined) {
+        //     res.status(422).json("name must be a string or undefined");
+        //     return;
+        // }
+        // if (typeof body.description !== "string" && body.description != undefined) {
+        //     res.status(422).json("description must be a string or undefined");
+        //     return;
+        // }
+        // if (typeof body.img !== "string" && body.img != undefined) {
+        //     res.status(422).json("img must be a string or undefined");
+        //     return;
+        // }
+        const responseData = await postsMethods.updateUserPost(id,body,userId);
         res.status(responseData.status).json(responseData.response)
 
     },
@@ -66,11 +66,11 @@ const controllerMethods:IControllerContract = {
         if (isNaN(id)){
             res.status(400).json("id must be a number");
         }
-        const responseData:IAnswer = await postsMethods.deletePost(id,userId);
+        const responseData = await postsMethods.deletePost(id,userId);
         res.status(responseData.status).json(responseData.response)
     },
     createPosts: async (req,res) => {
-        const body:IcountBody = req.body
+        const body = req.body
         if (req.query.id == undefined){
             res.status(422).json("request doesn't have userId or server can't get userId")
             return
@@ -103,7 +103,49 @@ const controllerMethods:IControllerContract = {
         }
         const responseData = await postsMethods.createPosts(count,userId)
         res.status(responseData.status).json(responseData.response)
-    }
-    
+    },
+    likePost: async (req,res) => {
+        const postId = Number(req.params.id)
+        const userId = res.locals.userId
+        if (isNaN(postId)){
+            res.status(400).json("postId must be a number");
+        }
+        const responseData = await postsMethods.likePost(postId,userId);
+        if (typeof responseData== typeof undefined){
+            return
+        }
+        
+        res.status(responseData.status).json(responseData.response)
+    },
+    unlikePost: async (req,res) => {
+        const postId = Number(req.params.id)
+        const userId = res.locals.userId
+        if (isNaN(postId)){
+            res.status(400).json("postId must be a number");
+        }
+        const responseData = await postsMethods.unlikePost(postId,userId);
+        
+        res.status(responseData.status).json(responseData.response)
+    },
+    comment: async(req, res) => {
+        if (!req.body){
+            res.status(422).json("request doesn't have body or server can't get body, try to set type of body 'raw' or 'x-www-form-urlencoded'")
+            return
+        }
+        const postId = Number(req.params.id)
+        const body = req.body.body
+        const userId = res.locals.userId
+
+        if (isNaN(postId)){
+            res.status(400).json("postId must be a number");
+        }
+        if (!body){
+            res.status(400).json("body must be a string");
+        }
+        
+        const responseData = await postsMethods.makeComment(body,postId,userId);
+        
+        res.status(responseData.status).json(responseData.response)
+    },
 }
 export default controllerMethods

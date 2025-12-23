@@ -2,20 +2,73 @@
 
 import Prisma from "../db/prisma.ts";
 import client from "../db/prismaClient.ts";
-import type{IRepositoryContract } from "./posts.types.ts";
+import type{IPostFull, IRepositoryContract } from "./posts.types.ts";
 
 const repositoryFunctions:IRepositoryContract={
     getAllPosts:async (getData) =>{
         const posts = await client.post.findMany(getData)
         return posts
+        // return posts.map((post)=>{
+        //     const postEdit = post
+            
+        //     return 
+        // })
     },
     getPostById: async (id) => {
-        const post = await client.post.findFirst({
-            where:{id:id}
+        const post = await client.post.findUnique({
+            where:{id:id},
+            include:{
+                tags:true,
+                commnets:true,
+                likes:true
+            }
         })
-        console.log(post)
-        return post
+        if (!post){
+            return "error"
+        }
+        // const { name, description, likes, tags, commnets } = post;
+        const {likes,tags,commnets,...other} = post
+        const realTags = await client.tag.findMany({
+            where:{
+                id:{
+                    in:tags.map((relationWithTag)=>{return relationWithTag.tagId})
+                }
+            },
+            omit:{
+                id:true
+            }
+            
+        })
+        const readAblePost:IPostFull = {
+            ...other,
+            comments:commnets.map((comment)=>{return comment.body}),
+            likes:likes.length,
+            tags:realTags.map((tag) => {return tag.name})
+        }
+        return readAblePost
     },
+    // createPosts: async () => {
+    //     let count;
+    //     for (count = 0; count < posts.length; count++ ){
+    //         const post = posts[count]
+    //         if (post==undefined){
+    //             break
+    //         }
+    //         post.userId = userId
+    //         console.log(post,userId)
+    //         await client.post.create({
+    //             data:post,
+    //             include: { tags: true }
+    //         })
+            
+    //     }
+        
+    //     const countOfPosts = await client.post.count()-count
+    //     return await repositoryFunctions.getAllPosts({
+    //         skip:countOfPosts,
+    //         take:count
+    //     })
+    // },
     createPostByUser: async (posts,userId) => {
         let count;
         for (count = 0; count < posts.length; count++ ){
@@ -38,10 +91,18 @@ const repositoryFunctions:IRepositoryContract={
             take:count
         })
     },
-    updatePost: async (id,postData) => {    
+    updatePost: async (id,postData) => {
+        const {tags, ...other} = postData
         return await client.post.update({
             where:{id:id},
-            data:postData
+            data:{
+                ...other,   
+                ...(tags && {
+                    TagsOnPosts: {
+                        connect: tags.map((id) => ({ id }))
+                    },
+                })
+            }
         })
     },
     deletePost: async (id) => {    
@@ -49,25 +110,54 @@ const repositoryFunctions:IRepositoryContract={
             const post = await client.post.delete({
                 where:{id:id}
             })
-            return {
-                status: 200,
-                response: post
-            }
+            
+            return post
         }
         
         catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError){
-                return {
-                    status: 404,
-                    response: `post with id ${id} is not found`
-                }
+                return `post with id ${id} is not found`
             }
-            return {
-                status: 404,
-                response: String(error)
-            }
+            return String(error)
         }
     },  
+    likePost: async (postId,userId) => {
+        const post = await client.post.update({
+            where:{id:postId},
+            data:{
+                likesToPosts:{
+                    create:{userId}
+                }
+            }
+        })
+        // const post = await client.post.findUnique({
+        //     where:{
+        //         id:postId
+        //     }
+        // })
+        return post
+    },
+    unlikePost: async (postId,userId) => {
+        await client.likesToPost.delete({
+            where:{
+                postId_userId:{
+                    postId,
+                    userId
+                }
+            }
+        })
+        return "like removed"
+    },
+    createComment: async (body, postId, userId) => {
+        const comment = await client.comment.create({
+            data:{
+                body,
+                postId,
+                userId
+            }
+        })
+        return comment
+    },
     // addTagsToPost: async (id, names) => {
     //     try {
     //         const post = await client.post.update({

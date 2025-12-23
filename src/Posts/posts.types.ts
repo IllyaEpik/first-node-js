@@ -6,6 +6,11 @@ export type IPosts = Prisma.PostGetPayload<{
     //     tags:true
     // }
 }>
+export type IPostFull = IPosts & {
+    tags:string[],
+    likes:number,
+    comments:string[]
+}
 export type IPostsWithTags = Prisma.PostGetPayload<{
     include:{
         tags:true
@@ -14,12 +19,24 @@ export type IPostsWithTags = Prisma.PostGetPayload<{
 export type ITagsOnPosts = Prisma.TagsOnPostsGetPayload<{
 
 }>
-
 export type IPostCreate = Prisma.PostUncheckedCreateInput
 export type IPostUpdate = Prisma.PostUncheckedUpdateInput
-
+export type Icommnet = Prisma.CommentGetPayload<{}>
+export type ICreatecommnet = Prisma.CommentGetPayload<{
+    omit:{
+        id:true,
+        createdAt:true,
+        userId:true
+    }
+}>
 export type IPostCreateChecked = Prisma.PostCreateInput
 export type IPostUpdateChecked = Prisma.PostUpdateInput
+export interface IPostUpdateAll{
+    name?:string,
+    img?:string,
+    description?:string,
+    tags?:number[]
+}
 export interface getData {
     skip?:number,
     take?:number
@@ -27,17 +44,27 @@ export interface getData {
 export interface IcountBody {
     count: number
 }
-export interface IAnswer {
-    response: string | IPosts | IPosts[] | null,
+// export interface postLike {
+//     postId: number
+// }
+// export interface IAnswer {
+//     response: string | IPosts | IPosts[] | null | IPostUpdateAll,
+//     status: number
+// } 
+export interface IAnswer<T> {
+    response: T | string,
     status: number
 } 
 export interface IServiceContract {
-    getPostById: (id:number) => Promise<IAnswer>
-    getAllPosts: (skip:String | undefined,take:String | undefined,filter:Boolean) => Promise<IAnswer>
-    createUserPost: (body:IPostCreate,userId:number) => Promise<IAnswer>
-    updateUserPost: (id:number,body:IPostUpdate,userId:number) => Promise<IAnswer>
-    createPosts: (count:number,userId:number) => Promise<IAnswer>
-    deletePost: (id:number,userId:number) => Promise<IAnswer>
+    getPostById: (id:number) => Promise<IAnswer<IPosts | null>>
+    getAllPosts: (skip:String | undefined,take:String | undefined,filter:Boolean) => Promise<IAnswer<IPosts[]>>
+    createUserPost: (body:IPostCreate,userId:number) => Promise<IAnswer<IPosts[]>>
+    updateUserPost: (id:number,body:IPostUpdateAll,userId:number) => Promise<IAnswer<IPosts | null>>
+    createPosts: (count:number,userId:number) => Promise<IAnswer<IPosts[]>>
+    deletePost: (id:number,userId:number) => Promise<IAnswer<IPosts>>
+    likePost: (postId:number,userId:number) => Promise<IAnswer<IPosts>>
+    unlikePost: (postId:number,userId:number) => Promise<IAnswer<null>>
+    makeComment: (body:string, postId:number, userId:number) => Promise<IAnswer<Icommnet>>
 }
 export interface IControllerContract {
     getPostById: (
@@ -53,7 +80,7 @@ export interface IControllerContract {
         res:Response<string | IPosts | IPosts[] | null,{userId:number}>
     ) => Promise<void>
     updateUserPost: (
-        req:Request<{id:string}, IPosts | string, IPostUpdate>,
+        req:Request<{id:string}, IPosts | string, IPostUpdateAll>,
         res:Response<string | IPosts | IPosts[] | null,{userId:number}>
     ) => Promise<void>
     createPosts: (
@@ -64,16 +91,31 @@ export interface IControllerContract {
         req:Request<{id:string}, IPosts[] | string, IPosts>,
         res:Response<string | IPosts | IPosts[] | null,{userId:number}>
     ) => Promise<void>
-    
+    likePost: (
+        req:Request<{id:string},IPosts | string,object>,
+        res:Response<IPosts  | string | IPosts[] | null>
+    ) => Promise<void>
+    unlikePost: (
+        req:Request<{id:string},string,object>,
+        res:Response<IPosts  | string | IPosts[] | null>
+    ) => Promise<void>
+    comment: (
+        req:Request<{id:string},Icommnet | string,ICreatecommnet>,
+        res:Response<Icommnet  | string | null>
+    ) => Promise<void>
 }
 
 export interface IRepositoryContract {
-    getPostById: (id:number) => Promise<IPosts | null>
+    getPostById: (id:number) => Promise<IPostFull | null | string>
     getAllPosts: (getData:getData) => Promise<IPosts[]>
     createPostByUser: (posts:IPostCreate[],userId:number) => Promise<IPosts[]>
-    updatePost: (id:number,postData:IPostUpdate) => Promise<IPosts | null>
-    createPosts: (count:number) => Promise<IAnswer>
-    deletePost: (id:number) => Promise<IAnswer>
+    updatePost: (id:number,postData:IPostUpdateAll) => Promise<IPosts | null>
+    // createPosts: (count:number) => Promise<IAnswer>
+    deletePost: (id:number) => Promise<IPosts | string>
+    likePost: (postId:number,userId:number) => Promise<IPosts>
+    unlikePost: (postId:number,userId:number) => Promise<string>
+    createComment: (body:string, postId:number, userId:number) => Promise<Icommnet>
+
     // addTagsToPost: (id:number,names:string[]) => Promise<IAnswer>
 }
 // export type IAnswero = IAnswer
