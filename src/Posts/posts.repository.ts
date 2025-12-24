@@ -2,6 +2,7 @@
 
 import Prisma from "../db/prisma.ts";
 import client from "../db/prismaClient.ts";
+import { generatePosts } from "../Generator.ts";
 import type{IPostFull, IRepositoryContract } from "./posts.types.ts";
 
 const repositoryFunctions:IRepositoryContract={
@@ -15,15 +16,19 @@ const repositoryFunctions:IRepositoryContract={
                     }
                 },
                 commnets:true,
-                likes:true
+                _count:{
+                    select:{
+                        likesToPosts:true
+                    }
+                }
             }
         })
         const readablePost:IPostFull[] = []
         posts.map((post) => {
-            const {likes,tags,commnets,...other} = post
+            const {_count,tags,commnets,...other} = post
             readablePost.push({
                 ...other,
-                likes:likes.length,
+                likes:_count.likesToPosts,
                 comments:commnets.map((comment) => {return comment.body}),
                 tags: tags.map((tag) => {return tag.relationWithTag.name})
             })
@@ -62,27 +67,13 @@ const repositoryFunctions:IRepositoryContract={
         }
         return readAblePost
     },
-    // createPosts: async () => {
-    //     let count;
-    //     for (count = 0; count < posts.length; count++ ){
-    //         const post = posts[count]
-    //         if (post==undefined){
-    //             break
-    //         }
-    //         post.userId = userId
-    //         console.log(post,userId)
-    //         await client.post.create({
-    //             data:post,
-    //             include: { tags: true }
-    //         })
-            
-    //     }
-        
-    //     const countOfPosts = await client.post.count()-count
-    //     return await repositoryFunctions.getAllPosts({
-    //         skip:countOfPosts,
-    //         take:count
+    // createPosts: async (count,userId) => {
+    //     const data = await generatePosts(count,userId)
+    //     const posts = await client.post.createManyAndReturn({
+    //         data
     //     })
+        
+    //     return posts
     // },
     createPostByUser: async (posts,userId) => {
         let count;

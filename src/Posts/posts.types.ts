@@ -59,7 +59,7 @@ export interface IServiceContract {
     getPostById: (id:number) => Promise<IAnswer<IPosts | null>>
     getAllPosts: (skip:String | undefined,take:String | undefined,filter:Boolean) => Promise<IAnswer<IPosts[]>>
     createUserPost: (body:IPostCreate,userId:number) => Promise<IAnswer<IPosts[]>>
-    updateUserPost: (id:number,body:IPostUpdateAll,userId:number) => Promise<IAnswer<IPosts | null | unknown>>
+    updateUserPost: (id:number,body:IPostUpdateAll,userId:number) => Promise<IAnswer<IPosts | null  >>
     createPosts: (count:number,userId:number) => Promise<IAnswer<IPosts[]>>
     deletePost: (id:number,userId:number) => Promise<IAnswer<IPosts>>
     likePost: (postId:number,userId:number) => Promise<IAnswer<IPosts>>
@@ -110,11 +110,11 @@ export interface IRepositoryContract {
     getAllPosts: (getData:getData) => Promise<IPosts[]>
     createPostByUser: (posts:IPostCreate[],userId:number) => Promise<IPosts[]>
     updatePost: (id:number,postData:IPostUpdateAll) => Promise<IPosts | null>
-    // createPosts: (count:number) => Promise<IAnswer>
     deletePost: (id:number) => Promise<IPosts | string>
     likePost: (postId:number,userId:number) => Promise<IPosts>
     unlikePost: (postId:number,userId:number) => Promise<string>
     createComment: (body:string, postId:number, userId:number) => Promise<Icommnet>
+    // createPosts: (count:number,userId:number) => Promise<IPosts[]>
 
     // addTagsToPost: (id:number,names:string[]) => Promise<IAnswer>
 }

@@ -1,7 +1,7 @@
 // import path from "path";
 import crypto from "crypto";
 import {generate} from "random-words";
-import type{ IUser } from "./User/user.types.ts";
+// import type{ IUser } from "./User/user.types.ts";
 import type{ IPostCreate } from "./Posts/posts.types.ts";
 // import type{ ITagCreate } from "./Posts/posts.types.ts"; /
 // import { fileURLToPath } from "url";
@@ -23,13 +23,13 @@ const imgList:string[] = [
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaNYcBxd8JRW3HuLY5Gwoq0yRSZYmOxlH3Fw&s",
     ""
 ]
-function createPost(countPosts=10,userId:number):IPostCreate[]{
+export function generatePosts(countPosts=10,userId:number):IPostCreate[]{
     const array:IPostCreate[] = []
 
     for (let count = 0; count<countPosts; count++){
         const object:IPostCreate = {
             name: editor(crypto.randomInt(2)+1),
-            description: editor(crypto.randomInt(200)+10),
+            description: editor(crypto.randomInt(100)+10),
             img: String(imgList[crypto.randomInt(5)]),
             userId:userId
         }
@@ -61,7 +61,7 @@ function createPost(countPosts=10,userId:number):IPostCreate[]{
 // createUsers(321)
 // export createUsers
 
-export default {
-    "createPost":createPost, 
-    // "createUsers":createUsers
-}
+// export default {
+//     "createPost":createPost, 
+//     // "createUsers":createUsers
+// }

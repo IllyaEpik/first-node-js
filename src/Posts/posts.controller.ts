@@ -71,12 +71,12 @@ const controllerMethods:IControllerContract = {
     },
     createPosts: async (req,res) => {
         const body = req.body
-        if (req.query.id == undefined){
-            res.status(422).json("request doesn't have userId or server can't get userId")
-            return
-        }
-        const userId:number = Number(req.query.id)
-        if (isNaN(userId)){
+        // if (req.query.id == undefined){
+        //     res.status(422).json("request doesn't have userId or server can't get userId")
+        //     return
+        // }
+        const userId:number = Number(res.locals.userId)
+        if (isNaN(userId)){ 
             res.status(422).json("userId must be a number")
             return
         }

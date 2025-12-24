@@ -1,5 +1,5 @@
 import type{getData, IPosts, IServiceContract,IPostCreate } from "./posts.types.ts";
-import create from "../Generator.ts";
+import { generatePosts } from "../Generator.ts";
 import repository from "./posts.repository.ts";
 import userRepository from "../User/user.repository.ts";
 
@@ -139,7 +139,7 @@ const postsMethods: IServiceContract = {
             }
         }catch(error:unknown){
             return {
-                response:error,
+                response:(error as string),
                 status:500
             }
         }
@@ -147,7 +147,7 @@ const postsMethods: IServiceContract = {
     },
     createPosts: async (count,userId) => {
         try {
-            const postsData:IPostCreate[] = await create.createPost(count,userId)
+            const postsData:IPostCreate[] = await generatePosts(count,userId)
             const posts:IPosts[] = await repository.createPostByUser(postsData,userId)
             // allPostsJson = JSON.parse(await fsPromises.readFile(pathToJson, "utf-8"))
             return {

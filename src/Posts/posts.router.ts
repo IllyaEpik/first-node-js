@@ -12,5 +12,6 @@ router.delete("/delete/:id",authMiddleware, controllerData.deletePost)
 router.put("/like/:id",authMiddleware, controllerData.likePost)
 router.delete("/unlike/:id",authMiddleware, controllerData.unlikePost)
 router.post("/:id/comment",authMiddleware,controllerData.comment)
-// router.post("/auto/create",authMiddleware, controllerData.createPosts)
+router.post("/auto/create",authMiddleware, controllerData.createPosts)
+
 export default router
