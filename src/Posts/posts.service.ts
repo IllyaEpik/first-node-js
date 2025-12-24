@@ -139,7 +139,7 @@ const postsMethods: IServiceContract = {
             }
         }catch(error:unknown){
             return {
-                response:String(error),
+                response:error,
                 status:500
             }
         }

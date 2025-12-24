@@ -6,13 +6,29 @@ import type{IPostFull, IRepositoryContract } from "./posts.types.ts";
 
 const repositoryFunctions:IRepositoryContract={
     getAllPosts:async (getData) =>{
-        const posts = await client.post.findMany(getData)
-        return posts
-        // return posts.map((post)=>{
-        //     const postEdit = post
-            
-        //     return 
-        // })
+        const posts = await client.post.findMany({
+            ...getData,
+            include:{
+                tags:{
+                    include:{
+                        relationWithTag:true
+                    }
+                },
+                commnets:true,
+                likes:true
+            }
+        })
+        const readablePost:IPostFull[] = []
+        posts.map((post) => {
+            const {likes,tags,commnets,...other} = post
+            readablePost.push({
+                ...other,
+                likes:likes.length,
+                comments:commnets.map((comment) => {return comment.body}),
+                tags: tags.map((tag) => {return tag.relationWithTag.name})
+            })
+        })
+        return readablePost
     },
     getPostById: async (id) => {
         const post = await client.post.findUnique({
@@ -26,7 +42,6 @@ const repositoryFunctions:IRepositoryContract={
         if (!post){
             return "error"
         }
-        // const { name, description, likes, tags, commnets } = post;
         const {likes,tags,commnets,...other} = post
         const realTags = await client.tag.findMany({
             where:{
@@ -92,16 +107,33 @@ const repositoryFunctions:IRepositoryContract={
         })
     },
     updatePost: async (id,postData) => {
+        
         const {tags, ...other} = postData
+        // if (tags){
+        //     const relations = await client.tagsOnPosts.createMany({
+        //         data:[
+        //             tags?.map(()=> {
+    
+        //             })
+        //         ]
+        //     })
+        // }
         return await client.post.update({
             where:{id:id},
             data:{
                 ...other,   
-                ...(tags && {
-                    TagsOnPosts: {
-                        connect: tags.map((id) => ({ id }))
-                    },
-                })
+                // ...(tags && {
+                //     tags: {
+                //         create: {
+                //             relationWithTag:{
+                //                 connect:{
+                //                     id:2
+                //                 }
+                //             }
+                                
+                //         }
+                //     }
+                // })
             }
         })
     },
@@ -122,20 +154,16 @@ const repositoryFunctions:IRepositoryContract={
         }
     },  
     likePost: async (postId,userId) => {
-        const post = await client.post.update({
-            where:{id:postId},
+        const like = await client.likesToPost.create({
             data:{
-                likesToPosts:{
-                    create:{userId}
-                }
+                postId,
+                userId
+            },
+            include:{
+                post:true
             }
         })
-        // const post = await client.post.findUnique({
-        //     where:{
-        //         id:postId
-        //     }
-        // })
-        return post
+        return like.post
     },
     unlikePost: async (postId,userId) => {
         await client.likesToPost.delete({

@@ -59,7 +59,7 @@ export interface IServiceContract {
     getPostById: (id:number) => Promise<IAnswer<IPosts | null>>
     getAllPosts: (skip:String | undefined,take:String | undefined,filter:Boolean) => Promise<IAnswer<IPosts[]>>
     createUserPost: (body:IPostCreate,userId:number) => Promise<IAnswer<IPosts[]>>
-    updateUserPost: (id:number,body:IPostUpdateAll,userId:number) => Promise<IAnswer<IPosts | null>>
+    updateUserPost: (id:number,body:IPostUpdateAll,userId:number) => Promise<IAnswer<IPosts | null | unknown>>
     createPosts: (count:number,userId:number) => Promise<IAnswer<IPosts[]>>
     deletePost: (id:number,userId:number) => Promise<IAnswer<IPosts>>
     likePost: (postId:number,userId:number) => Promise<IAnswer<IPosts>>
