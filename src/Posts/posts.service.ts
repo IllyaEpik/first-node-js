@@ -190,10 +190,19 @@ const postsMethods: IServiceContract = {
         }
     },
     likePost: async (postId, userId) =>{
-        const data = await repository.likePost(postId,userId)
-        return {
-            response:data,
-            status:201
+        try{
+            const data = await repository.likePost(postId,userId)
+            return {
+                response:data,
+                status:201
+            }
+
+        }catch{
+            const data = await repository.unlikePost(postId,userId)
+            return {
+                response:data,
+                status:204
+            }
         }
     },
     unlikePost: async (postId, userId) =>{

@@ -2,7 +2,7 @@
 
 import Prisma from "../db/prisma.ts";
 import client from "../db/prismaClient.ts";
-import { generatePosts } from "../Generator.ts";
+// import { generatePosts } from "../Generator.ts";
 import type{IPostFull, IRepositoryContract } from "./posts.types.ts";
 
 const repositoryFunctions:IRepositoryContract={
@@ -16,19 +16,15 @@ const repositoryFunctions:IRepositoryContract={
                     }
                 },
                 commnets:true,
-                _count:{
-                    select:{
-                        likesToPosts:true
-                    }
-                }
+                likesToPosts:true
             }
         })
         const readablePost:IPostFull[] = []
         posts.map((post) => {
-            const {_count,tags,commnets,...other} = post
+            const {likesToPosts,tags,commnets,...other} = post
             readablePost.push({
                 ...other,
-                likes:_count.likesToPosts,
+                likes:likesToPosts.map((like) => like.userId),
                 comments:commnets.map((comment) => {return comment.body}),
                 tags: tags.map((tag) => {return tag.relationWithTag.name})
             })
@@ -62,7 +58,7 @@ const repositoryFunctions:IRepositoryContract={
         const readAblePost:IPostFull = {
             ...other,
             comments:commnets.map((comment)=>{return comment.body}),
-            likes:likes.length,
+            likes:likes.map((like)=>{return like.id}),
             tags:realTags.map((tag) => {return tag.name})
         }
         return readAblePost
@@ -154,10 +150,17 @@ const repositoryFunctions:IRepositoryContract={
                 post:true
             }
         })
-        return like.post
+        const likes = await client.likesToPost.findMany({
+            where:{
+                postId:postId
+            }
+        })
+        return likes.map((like)=> {return like.userId})
+
+        
     },
     unlikePost: async (postId,userId) => {
-        await client.likesToPost.delete({
+        const deletedLike = await client.likesToPost.delete({
             where:{
                 postId_userId:{
                     postId,
@@ -165,7 +168,13 @@ const repositoryFunctions:IRepositoryContract={
                 }
             }
         })
-        return "like removed"
+        const likes = await client.likesToPost.findMany({
+            where:{
+                postId:postId
+            }
+        })
+        return likes.map((like)=> {return like.userId})
+        // return deletedLike.post
     },
     createComment: async (body, postId, userId) => {
         const comment = await client.comment.create({

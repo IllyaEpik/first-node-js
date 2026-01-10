@@ -8,7 +8,7 @@ export type IPosts = Prisma.PostGetPayload<{
 }>
 export type IPostFull = IPosts & {
     tags:string[],
-    likes:number,
+    likes:number[],
     comments:string[]
 }
 export type IPostsWithTags = Prisma.PostGetPayload<{
@@ -62,8 +62,8 @@ export interface IServiceContract {
     updateUserPost: (id:number,body:IPostUpdateAll,userId:number) => Promise<IAnswer<IPosts | null  >>
     createPosts: (count:number,userId:number) => Promise<IAnswer<IPosts[]>>
     deletePost: (id:number,userId:number) => Promise<IAnswer<IPosts>>
-    likePost: (postId:number,userId:number) => Promise<IAnswer<IPosts>>
-    unlikePost: (postId:number,userId:number) => Promise<IAnswer<null>>
+    likePost: (postId:number,userId:number) => Promise<IAnswer<number[]>>
+    unlikePost: (postId:number,userId:number) => Promise<IAnswer<number[]>>
     makeComment: (body:string, postId:number, userId:number) => Promise<IAnswer<Icommnet>>
 }
 export interface IControllerContract {
@@ -93,11 +93,11 @@ export interface IControllerContract {
     ) => Promise<void>
     likePost: (
         req:Request<{id:string},IPosts | string,object>,
-        res:Response<IPosts  | string | IPosts[] | null>
+        res:Response<IPosts  | string | number[] | null>
     ) => Promise<void>
     unlikePost: (
         req:Request<{id:string},string,object>,
-        res:Response<IPosts  | string | IPosts[] | null>
+        res:Response<IPosts  | string | number[] | null>
     ) => Promise<void>
     comment: (
         req:Request<{id:string},Icommnet | string,ICreatecommnet>,
@@ -111,8 +111,8 @@ export interface IRepositoryContract {
     createPostByUser: (posts:IPostCreate[],userId:number) => Promise<IPosts[]>
     updatePost: (id:number,postData:IPostUpdateAll) => Promise<IPosts | null>
     deletePost: (id:number) => Promise<IPosts | string>
-    likePost: (postId:number,userId:number) => Promise<IPosts>
-    unlikePost: (postId:number,userId:number) => Promise<string>
+    likePost: (postId:number,userId:number) => Promise<number[]>
+    unlikePost: (postId:number,userId:number) => Promise<number[]>
     createComment: (body:string, postId:number, userId:number) => Promise<Icommnet>
     // createPosts: (count:number,userId:number) => Promise<IPosts[]>
 
